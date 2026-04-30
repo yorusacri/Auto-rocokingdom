@@ -1,3 +1,4 @@
+import random
 import time as _time
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
@@ -258,4 +259,5 @@ class Engine:
                     else:
                         last_trigger_time = now
 
-                _time.sleep(interval)
+                jitter = random.uniform(-interval * 0.15, interval * 0.15)
+                _time.sleep(max(0.05, interval + jitter))
