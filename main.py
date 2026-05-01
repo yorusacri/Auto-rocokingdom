@@ -56,6 +56,16 @@ def main() -> None:
         mode_cls = MODE_REGISTRY.get(choice, MODE_REGISTRY["1"])
         mode = mode_cls()
 
+    # 输入方式选择
+    print("\n请选择输入方式:")
+    print("  1: sendinput（拟真度高，需游戏在前台）（默认）")
+    print("  2: postmessage（可后台，拟真度低）")
+    input_choice = input("请输入选项 (1/2): ").strip()
+    if input_choice == "2":
+        CONFIG.input_method = "postmessage"
+    else:
+        CONFIG.input_method = "sendinput"
+
     Engine(mode).run()
 
 

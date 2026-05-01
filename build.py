@@ -36,11 +36,11 @@ LITE_EXCLUDE = [
     "--exclude-module=shapely",
 ]
 
-FULL_HIDDEN_IMPORTS = [
-    "--hidden-import=easyocr",
-    "--hidden-import=torch",
-    "--hidden-import=torchvision",
-    "--hidden-import=PIL",
+FULL_COLLECT = [
+    "--collect-all=easyocr",
+    "--collect-all=torch",
+    "--collect-all=torchvision",
+    "--collect-all=PIL",
 ]
 
 
@@ -68,7 +68,7 @@ def main() -> None:
         build(LITE_NAME, LITE_EXCLUDE)
 
     if target in ("all", "full"):
-        build(FULL_NAME, FULL_HIDDEN_IMPORTS)
+        build(FULL_NAME, FULL_COLLECT)
 
     if target not in ("all", "lite", "full"):
         print(f"Unknown target: {target}")

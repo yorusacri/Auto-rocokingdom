@@ -17,7 +17,7 @@ def _exe_dir() -> str:
     return os.path.dirname(os.path.abspath(__file__))
 
 
-@dataclass(frozen=True)
+@dataclass
 class AppConfig:
     # A visible window title keyword for your game client.
     window_title_keyword: str = "洛克王国：世界"
