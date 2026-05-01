@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  build-lite:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,7 +20,7 @@ jobs:
       - name: Set up Python
         run: uv python install 3.12
 
-      - name: Install dependencies
+      - name: Install core dependencies
         run: uv sync
 
       - name: Install PyInstaller
@@ -29,24 +29,67 @@ jobs:
       - name: Build lite version
         run: uv run python build.py lite
 
+      - name: Upload lite artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: auto-roco-lite
+          path: dist/auto-roco-lite/
+
+  build-full:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install all dependencies (with EasyOCR)
+        run: uv sync --extra easyocr
+
+      - name: Install PyInstaller
+        run: uv pip install pyinstaller
+
       - name: Build full version
         run: uv run python build.py full
 
+      - name: Upload full artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: auto-roco-full
+          path: dist/auto-roco-full/
+
+  release:
+    needs: [build-lite, build-full]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download lite artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: auto-roco-lite
+          path: auto-roco-lite/
+
+      - name: Download full artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: auto-roco-full
+          path: auto-roco-full/
+
       - name: Zip lite
-        shell: pwsh
-        run: Compress-Archive -Path dist/auto-roco-lite/* -DestinationPath dist/auto-roco-lite.zip
+        run: cd auto-roco-lite && zip -r ../auto-roco-lite.zip .
 
       - name: Zip full
-        shell: pwsh
-        run: Compress-Archive -Path dist/auto-roco-full/* -DestinationPath dist/auto-roco-full.zip
+        run: cd auto-roco-full && zip -r ../auto-roco-full.zip .
 
       - name: Create Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $tag = "${{ github.ref_name }}"
-          gh release create $tag `
-            --title "Auto-Roco $tag" `
-            --generate-notes `
-            dist/auto-roco-lite.zip `
-            dist/auto-roco-full.zip
+          tag="${GITHUB_REF_NAME}"
+          gh release create "$tag" \
+            --title "Auto-Roco $tag" \
+            --generate-notes \
+            auto-roco-lite.zip \
+            auto-roco-full.zip
