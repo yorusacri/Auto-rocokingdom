@@ -16,7 +16,7 @@ DIST_DIR = PROJECT_DIR / "dist"
 TEMPLATES_DIR = PROJECT_DIR / "templates"
 
 PYINSTALLER_COMMON = [
-    "pyinstaller",
+    sys.executable, "-m", "PyInstaller",
     "--noconfirm",
     "--onedir",
     "--console",
@@ -26,6 +26,15 @@ PYINSTALLER_COMMON = [
 
 LITE_NAME = "auto-roco-lite"
 FULL_NAME = "auto-roco-full"
+
+LITE_EXCLUDE = [
+    "--exclude-module=easyocr",
+    "--exclude-module=torch",
+    "--exclude-module=torchvision",
+    "--exclude-module=PIL",
+    "--exclude-module=scipy",
+    "--exclude-module=shapely",
+]
 
 FULL_HIDDEN_IMPORTS = [
     "--hidden-import=easyocr",
@@ -49,14 +58,14 @@ def build(name: str, extra_args: list[str] | None = None) -> None:
         if src.exists():
             shutil.copy2(src, out_dir / doc)
 
-    print(f"\n✓ {name} built → {out_dir}")
+    print(f"\n[OK] {name} built -> {out_dir}")
 
 
 def main() -> None:
     target = sys.argv[1] if len(sys.argv) > 1 else "all"
 
     if target in ("all", "lite"):
-        build(LITE_NAME)
+        build(LITE_NAME, LITE_EXCLUDE)
 
     if target in ("all", "full"):
         build(FULL_NAME, FULL_HIDDEN_IMPORTS)
@@ -66,7 +75,7 @@ def main() -> None:
         print("Usage: python build.py [all|lite|full]")
         sys.exit(1)
 
-    print(f"\nDone. Output in {DIST_DIR}/")
+    print(f"\nDone. Output in {DIST_DIR}")
 
 
 if __name__ == "__main__":

@@ -4,7 +4,14 @@ from dataclasses import dataclass, field
 
 
 def _base_dir() -> str:
-    """Return the directory that contains templates/ and logs/."""
+    """Return the directory that contains templates/."""
+    if getattr(sys, "frozen", False):
+        return os.path.join(os.path.dirname(sys.executable), "_internal")
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+def _exe_dir() -> str:
+    """Return the directory next to the exe (writable, for logs)."""
     if getattr(sys, "frozen", False):
         return os.path.dirname(sys.executable)
     return os.path.dirname(os.path.abspath(__file__))
@@ -72,7 +79,7 @@ class AppConfig:
     ocr_fallback_text: str = "未知"
 
     # Pollution battle CSV log.
-    pollute_log_path: str = field(default_factory=lambda: os.path.join(_base_dir(), "logs", "pollute_log.csv"))
+    pollute_log_path: str = field(default_factory=lambda: os.path.join(_exe_dir(), "logs", "pollute_log.csv"))
 
     # Runtime controls.
 
