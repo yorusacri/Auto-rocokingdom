@@ -1,5 +1,13 @@
 # 更新日志
 
+### 2026-05-01 (续)
+
+1. 新增 PyInstaller 打包支持：`build.py` 一键构建精简版和完整版独立可执行文件。
+2. 新增 GitHub Actions 自动发布：push `v*` tag 时自动构建并创建 Release，附带两个 zip 包。
+3. 游戏窗口匹配改为精确匹配：避免匹配到启动器、浏览器标签等无关窗口。
+4. 路径解析兼容 PyInstaller：`config.py` 中模板和日志路径自动定位到 exe 所在目录。
+5. 清理仓库：移除 `requirements.txt`（已被 `pyproject.toml` 替代）、`src/`、`debug_templates.py`、`template_debug/`。
+
 ### 2026-05-01
 
 1. 新增 `input_method` 配置项：可选 `sendinput`（拟真度高，需前台）或 `postmessage`（可后台，拟真度低），默认 `sendinput`。

@@ -1,4 +1,13 @@
-from dataclasses import dataclass
+import os
+import sys
+from dataclasses import dataclass, field
+
+
+def _base_dir() -> str:
+    """Return the directory that contains templates/ and logs/."""
+    if getattr(sys, "frozen", False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
 
 
 @dataclass(frozen=True)
@@ -40,7 +49,7 @@ class AppConfig:
     roi_height_ratio: float = 0.5
 
     # Templates.
-    template_dir: str = "templates"
+    template_dir: str = field(default_factory=lambda: os.path.join(_base_dir(), "templates"))
     template_pattern: str = "*.png"
     capture_template_name: str = "capture.png"
     pollute_capture_template_name: str = "pollute_capture.png"
@@ -63,7 +72,7 @@ class AppConfig:
     ocr_fallback_text: str = "未知"
 
     # Pollution battle CSV log.
-    pollute_log_path: str = "logs/pollute_log.csv"
+    pollute_log_path: str = field(default_factory=lambda: os.path.join(_base_dir(), "logs", "pollute_log.csv"))
 
     # Runtime controls.
 

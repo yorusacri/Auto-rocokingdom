@@ -18,7 +18,6 @@ except Exception:
 def find_window_by_keyword(keyword: str) -> Optional[int]:
     if win32gui is None:
         return 1
-    keyword_lc = keyword.lower()
     result_hwnd: Optional[int] = None
 
     def _enum_handler(hwnd: int, _ctx: object) -> None:
@@ -30,7 +29,7 @@ def find_window_by_keyword(keyword: str) -> Optional[int]:
         title = win32gui.GetWindowText(hwnd)
         if not title:
             return
-        if keyword_lc in title.lower():
+        if title == keyword:
             result_hwnd = hwnd
 
     win32gui.EnumWindows(_enum_handler, None)

@@ -24,5 +24,10 @@ env/
 # Project specific
 *.new
 
+# PyInstaller
+dist/
+build/
+*.spec
+
 run.bat
 template_debug/

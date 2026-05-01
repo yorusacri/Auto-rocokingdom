@@ -1,0 +1,52 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Install PyInstaller
+        run: uv pip install pyinstaller
+
+      - name: Build lite version
+        run: uv run python build.py lite
+
+      - name: Build full version
+        run: uv run python build.py full
+
+      - name: Zip lite
+        shell: pwsh
+        run: Compress-Archive -Path dist/auto-roco-lite/* -DestinationPath dist/auto-roco-lite.zip
+
+      - name: Zip full
+        shell: pwsh
+        run: Compress-Archive -Path dist/auto-roco-full/* -DestinationPath dist/auto-roco-full.zip
+
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $tag = "${{ github.ref_name }}"
+          gh release create $tag `
+            --title "Auto-Roco $tag" `
+            --generate-notes `
+            dist/auto-roco-lite.zip `
+            dist/auto-roco-full.zip
