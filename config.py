@@ -20,6 +20,9 @@ class AppConfig:
     # User requirement: If in battle, keep pressing X with 1.0s interval.
     trigger_cooldown_sec: float = 1.0
 
+    # Input simulation method: "sendinput" (realistic, needs foreground) or "postmessage" (background, less stealth).
+    input_method: str = "sendinput"
+
     # Escape mode uses physical mouse click only.
     # Keep game window and confirmation button visible when triggering escape.
     escape_click_method: str = "physical"
@@ -46,8 +49,8 @@ class AppConfig:
     # Teammate reconnect detection (non-battle state).
     reconnect_template_name: str = "qiudaidai.png"
     reconnect_accept_key: str = "f"
-    reconnect_center_roi: tuple = (0.25, 0.25, 0.5, 0.5)  # (left, top, width, height)
-    reconnect_threshold: float = 0.6
+    reconnect_center_roi: tuple = (0.2, 0.2, 0.6, 0.6)  # (left, top, width, height)
+    reconnect_threshold: float = 0.7
 
     # OCR spirit name detection ROI: top-right corner of the game window.
     ocr_roi_left_ratio: float = 0.85

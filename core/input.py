@@ -11,6 +11,8 @@ import ctypes.wintypes
 import win32api
 import win32con
 
+from config import CONFIG
+
 # ---------- SendInput 常量 ----------
 INPUT_KEYBOARD = 1
 INPUT_MOUSE = 0
@@ -77,17 +79,17 @@ def _rand_delay(lo: float = 0.03, hi: float = 0.08) -> float:
     return random.uniform(lo, hi)
 
 
-def press_once(hwnd: int, key: str) -> None:
-    if win32gui is None:
-        return
-
+def _resolve_vk(key: str) -> int | None:
     if key.lower() == "esc":
-        vk_code = win32con.VK_ESCAPE
-    elif len(key) == 1:
-        vk_code = win32api.VkKeyScan(key) & 0xFF
-    else:
-        return
+        return win32con.VK_ESCAPE
+    if len(key) == 1:
+        return win32api.VkKeyScan(key) & 0xFF
+    return None
 
+
+# ── SendInput 方式（拟真度高，需要前台） ──
+
+def _press_sendinput(hwnd: int, vk_code: int) -> None:
     scan_code = win32api.MapVirtualKey(vk_code, 0)
     flags_down = KEYEVENTF_SCANCODE
     flags_up = KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP
@@ -112,42 +114,81 @@ def press_once(hwnd: int, key: str) -> None:
     _send_input(up)
 
 
+def _click_sendinput(hwnd: int, x: int, y: int) -> bool:
+    screen_pos = win32gui.ClientToScreen(hwnd, (x, y))
+    sw = ctypes.windll.user32.GetSystemMetrics(0)
+    sh = ctypes.windll.user32.GetSystemMetrics(1)
+
+    abs_x = int(screen_pos[0] * 65535 / (sw - 1))
+    abs_y = int(screen_pos[1] * 65535 / (sh - 1))
+    abs_x += random.randint(-2, 2)
+    abs_y += random.randint(-2, 2)
+
+    move = INPUT()
+    move.type = INPUT_MOUSE
+    move.union.mi.dx = abs_x
+    move.union.mi.dy = abs_y
+    move.union.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE
+
+    down = INPUT()
+    down.type = INPUT_MOUSE
+    down.union.mi.dwFlags = MOUSEEVENTF_LEFTDOWN
+
+    up = INPUT()
+    up.type = INPUT_MOUSE
+    up.union.mi.dwFlags = MOUSEEVENTF_LEFTUP
+
+    _send_input(move)
+    time.sleep(_rand_delay(0.05, 0.12))
+    _send_input(down)
+    time.sleep(_rand_delay(0.04, 0.09))
+    _send_input(up)
+    return True
+
+
+# ── PostMessage 方式（可后台，拟真度低） ──
+
+def _press_postmessage(hwnd: int, vk_code: int) -> None:
+    scan_code = win32api.MapVirtualKey(vk_code, 0)
+    lparam_down = 1 | (scan_code << 16)
+    lparam_up = 1 | (scan_code << 16) | (1 << 30) | (1 << 31)
+
+    win32gui.PostMessage(hwnd, win32con.WM_KEYDOWN, vk_code, lparam_down)
+    time.sleep(0.05)
+    win32gui.PostMessage(hwnd, win32con.WM_KEYUP, vk_code, lparam_up)
+
+
+def _click_postmessage(hwnd: int, x: int, y: int) -> bool:
+    screen_pos = win32gui.ClientToScreen(hwnd, (x, y))
+    win32api.SetCursorPos(screen_pos)
+    time.sleep(0.1)
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+    time.sleep(0.1)
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+    return True
+
+
+# ── 公共入口 ──
+
+def press_once(hwnd: int, key: str) -> None:
+    if win32gui is None:
+        return
+    vk_code = _resolve_vk(key)
+    if vk_code is None:
+        return
+    if CONFIG.input_method == "postmessage":
+        _press_postmessage(hwnd, vk_code)
+    else:
+        _press_sendinput(hwnd, vk_code)
+
+
 def click_at(hwnd: int, x: int, y: int) -> bool:
     if win32gui is None:
         return True
-
     try:
-        screen_pos = win32gui.ClientToScreen(hwnd, (x, y))
-        sw = ctypes.windll.user32.GetSystemMetrics(0)
-        sh = ctypes.windll.user32.GetSystemMetrics(1)
-
-        # SendInput + ABSOLUTE 需要归一化到 0-65535
-        abs_x = int(screen_pos[0] * 65535 / (sw - 1))
-        abs_y = int(screen_pos[1] * 65535 / (sh - 1))
-
-        # 带随机偏移，模拟手指不精确
-        abs_x += random.randint(-2, 2)
-        abs_y += random.randint(-2, 2)
-
-        move = INPUT()
-        move.type = INPUT_MOUSE
-        move.union.mi.dx = abs_x
-        move.union.mi.dy = abs_y
-        move.union.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE
-
-        down = INPUT()
-        down.type = INPUT_MOUSE
-        down.union.mi.dwFlags = MOUSEEVENTF_LEFTDOWN
-
-        up = INPUT()
-        up.type = INPUT_MOUSE
-        up.union.mi.dwFlags = MOUSEEVENTF_LEFTUP
-
-        _send_input(move)
-        time.sleep(_rand_delay(0.05, 0.12))
-        _send_input(down)
-        time.sleep(_rand_delay(0.04, 0.09))
-        _send_input(up)
-        return True
+        if CONFIG.input_method == "postmessage":
+            return _click_postmessage(hwnd, x, y)
+        else:
+            return _click_sendinput(hwnd, x, y)
     except Exception:
         return False
