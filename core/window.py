@@ -29,7 +29,7 @@ def find_window_by_keyword(keyword: str) -> Optional[int]:
         title = win32gui.GetWindowText(hwnd)
         if not title:
             return
-        if title == keyword:
+        if keyword in title:
             result_hwnd = hwnd
 
     win32gui.EnumWindows(_enum_handler, None)
