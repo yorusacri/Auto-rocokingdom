@@ -1,12 +1,9 @@
 import ctypes
 from typing import Optional, Tuple
 
-from config import CONFIG
+import win32gui
 
-try:
-    import win32gui
-except ImportError:
-    win32gui = None
+from config import CONFIG
 
 # DPI Awareness
 try:
@@ -16,9 +13,6 @@ except Exception:
 
 
 def find_window_by_keyword(keyword: str) -> Optional[int]:
-    if win32gui is None:
-        return 1
-
     matches: list[tuple[int, str]] = []
 
     def _enum_handler(hwnd: int, _ctx: object) -> None:
@@ -36,8 +30,6 @@ def find_window_by_keyword(keyword: str) -> Optional[int]:
 
 
 def get_client_rect_on_screen(hwnd: int) -> Tuple[int, int, int, int]:
-    if win32gui is None:
-        return 0, 0, CONFIG.expected_window_width, CONFIG.expected_window_height
     left, top, right, bottom = win32gui.GetClientRect(hwnd)
     client_w = right - left
     client_h = bottom - top

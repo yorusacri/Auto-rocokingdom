@@ -1,15 +1,11 @@
 import random
 import time
 
-try:
-    import win32gui
-except ImportError:
-    win32gui = None
-
 import ctypes
 import ctypes.wintypes
 import win32api
 import win32con
+import win32gui
 
 from config import CONFIG
 
@@ -171,8 +167,6 @@ def _click_postmessage(hwnd: int, x: int, y: int) -> bool:
 # ── 公共入口 ──
 
 def press_once(hwnd: int, key: str) -> None:
-    if win32gui is None:
-        return
     vk_code = _resolve_vk(key)
     if vk_code is None:
         return
@@ -183,8 +177,6 @@ def press_once(hwnd: int, key: str) -> None:
 
 
 def click_at(hwnd: int, x: int, y: int) -> bool:
-    if win32gui is None:
-        return True
     try:
         if CONFIG.input_method == "postmessage":
             return _click_postmessage(hwnd, x, y)

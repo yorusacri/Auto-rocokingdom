@@ -1,14 +1,12 @@
 import time
-from datetime import datetime
 from typing import Optional
 
 from config import CONFIG
 from core.capture import capture_window_bgr
 from core.input import click_at, press_once
+from core.util import _ts
 from core.vision import best_yes_score_and_loc
 from modes.base import BaseMode, BattleEvent
-
-_Ts = lambda: datetime.now().strftime("%H:%M:%S")
 
 
 class EscapeMode(BaseMode):
@@ -24,7 +22,7 @@ class EscapeMode(BaseMode):
         if not is_hit:
             return None
         press_once(event.hwnd, "esc")
-        print(f"[{_Ts()}] 已触发 ESC")
+        print(f"[{_ts()}] 已触发 ESC")
 
         button_clicked = False
         yes_best_score = -1.0
@@ -57,10 +55,10 @@ class EscapeMode(BaseMode):
                 click_ok = click_at(event.hwnd, click_x, click_y)
                 button_clicked = click_ok
                 if click_ok:
-                    print(f"[{_Ts()}] 逃跑确认点击成功")
+                    print(f"[{_ts()}] 逃跑确认点击成功")
                     break
 
         if not button_clicked:
-            print(f"[{_Ts()}] [警告] 触发 ESC 后未找到确认按钮 yes.png（最佳分数={yes_best_score:.3f}）")
+            print(f"[{_ts()}] [警告] 触发 ESC 后未找到确认按钮 yes.png（最佳分数={yes_best_score:.3f}）")
 
         return 2.0

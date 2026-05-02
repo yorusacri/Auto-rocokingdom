@@ -2,24 +2,15 @@ import ctypes
 
 import cv2
 import numpy as np
-
-try:
-    import win32gui
-    import win32ui
-except ImportError:
-    win32gui = None
-    win32ui = None
-
 import win32con
+import win32gui
+import win32ui
 
 
 def capture_window_bgr(hwnd: int) -> np.ndarray:
     """
     通过 Windows API 直接抓取窗口内容，即使窗口被遮挡。
     """
-    if win32gui is None or win32ui is None:
-        raise ImportError("需要安装 pywin32 库 (pip install pywin32)")
-
     client_rect = win32gui.GetClientRect(hwnd)
     client_w = client_rect[2] - client_rect[0]
     client_h = client_rect[3] - client_rect[1]
@@ -36,23 +27,24 @@ def capture_window_bgr(hwnd: int) -> np.ndarray:
 
     saveDC.SelectObject(saveBitMap)
 
-    result = ctypes.windll.user32.PrintWindow(hwnd, saveDC.GetSafeHdc(), 3)
+    try:
+        result = ctypes.windll.user32.PrintWindow(hwnd, saveDC.GetSafeHdc(), 3)
 
-    if result != 1:
-        saveDC.BitBlt((0, 0), (client_w, client_h), mfcDC, (0, 0), win32con.SRCCOPY)
+        if result != 1:
+            saveDC.BitBlt((0, 0), (client_w, client_h), mfcDC, (0, 0), win32con.SRCCOPY)
 
-    signedIntsArray = saveBitMap.GetBitmapBits(True)
-    img = np.frombuffer(signedIntsArray, dtype='uint8')
+        signedIntsArray = saveBitMap.GetBitmapBits(True)
+        img = np.frombuffer(signedIntsArray, dtype='uint8')
 
-    expected_size = client_h * client_w * 4
-    if len(img) != expected_size:
-        img = np.zeros(expected_size, dtype='uint8')
+        expected_size = client_h * client_w * 4
+        if len(img) != expected_size:
+            img = np.zeros(expected_size, dtype='uint8')
 
-    img.shape = (client_h, client_w, 4)
-
-    win32gui.DeleteObject(saveBitMap.GetHandle())
-    saveDC.DeleteDC()
-    mfcDC.DeleteDC()
-    win32gui.ReleaseDC(hwnd, hwndDC)
+        img.shape = (client_h, client_w, 4)
+    finally:
+        win32gui.DeleteObject(saveBitMap.GetHandle())
+        saveDC.DeleteDC()
+        mfcDC.DeleteDC()
+        win32gui.ReleaseDC(hwnd, hwndDC)
 
     return cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)

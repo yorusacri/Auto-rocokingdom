@@ -1,7 +1,7 @@
 import glob
 import os
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
 import cv2
 import numpy as np
@@ -51,7 +51,6 @@ def load_templates() -> List[Template]:
         else:
             processed = preprocess(raw)
 
-        tpl_mask = None
         if "qiudaidai" in path.lower():
             processed = cv2.cvtColor(raw, cv2.COLOR_BGR2GRAY)
 

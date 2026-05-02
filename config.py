@@ -60,7 +60,7 @@ class AppConfig:
     template_pattern: str = "*.png"
     capture_template_name: str = "capture.png"
     pollute_capture_template_name: str = "pollute_capture.png"
-    battle_end_template_names: tuple = ("elf_P.png", "missions.png", "heaths.png", "map.png")
+    battle_end_template_names: tuple = ("elf_P.png", "missions.png", "map.png")
 
     # Teammate reconnect detection (non-battle state).
     reconnect_template_name: str = "qiudaidai.png"
