@@ -18,22 +18,21 @@ except Exception:
 def find_window_by_keyword(keyword: str) -> Optional[int]:
     if win32gui is None:
         return 1
-    result_hwnd: Optional[int] = None
+
+    matches: list[tuple[int, str]] = []
 
     def _enum_handler(hwnd: int, _ctx: object) -> None:
-        nonlocal result_hwnd
-        if result_hwnd is not None:
-            return
         if not win32gui.IsWindowVisible(hwnd):
             return
         title = win32gui.GetWindowText(hwnd)
-        if not title:
-            return
-        if keyword in title:
-            result_hwnd = hwnd
+        if title and keyword in title:
+            matches.append((hwnd, title))
 
     win32gui.EnumWindows(_enum_handler, None)
-    return result_hwnd
+    if not matches:
+        return None
+    # 标题最短的最可能是主窗口
+    return min(matches, key=lambda m: len(m[1]))[0]
 
 
 def get_client_rect_on_screen(hwnd: int) -> Tuple[int, int, int, int]:
