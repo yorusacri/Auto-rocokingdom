@@ -1,3 +1,4 @@
+from modes.ball import AutoBallMode
 from modes.battle import BattleMode
 from modes.count import CountMode
 from modes.escape import EscapeMode
@@ -8,6 +9,7 @@ MODE_REGISTRY = {
     "2": EscapeMode,
     "3": CountMode,
     "4": SmartMode,
+    "5": AutoBallMode,
 }
 
 __all__ = ["MODE_REGISTRY"]

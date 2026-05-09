@@ -38,3 +38,6 @@ class BaseMode(ABC):
 
     def on_battle_end(self, event: BattleEvent) -> None:
         """战斗结束时回调"""
+
+    def on_non_battle_no_action(self, event: BattleEvent) -> None:
+        """非战斗状态且未检测到行动时回调"""

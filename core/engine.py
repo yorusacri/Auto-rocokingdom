@@ -93,6 +93,7 @@ class Engine:
                 _time.sleep(interval)
                 continue
 
+            now = _time.time()
             scale = width / CONFIG.ref_width
 
             full_window_bgr = capture_window_bgr(hwnd)
@@ -230,6 +231,19 @@ class Engine:
                     print(f"[{_ts()}] 检测到同行请求，按 F 确认（qiudaidai={reconnect_score:.3f}）")
                     press_once(hwnd, CONFIG.reconnect_accept_key)
 
+                non_battle_event = BattleEvent(
+                    hwnd=hwnd,
+                    templates=templates,
+                    scale=scale,
+                    battle_count=battle_count,
+                    pollute_count=pollute_count,
+                    capture_score=capture_score,
+                    pollute_capture_score=pollute_capture_score,
+                    window_width=width,
+                    window_height=height,
+                )
+                self._mode.on_non_battle_no_action(non_battle_event)
+
             event = BattleEvent(
                 hwnd=hwnd,
                 templates=templates,
@@ -243,7 +257,6 @@ class Engine:
             )
 
             # ── Action within battle ──
-            now = _time.time()
             cooldown_ready = (now - last_trigger_time) >= CONFIG.trigger_cooldown_sec
 
             if in_battle and is_hit and cooldown_ready:
