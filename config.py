@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 from dataclasses import dataclass, field
@@ -15,6 +16,22 @@ def _exe_dir() -> str:
     if getattr(sys, "frozen", False):
         return os.path.dirname(sys.executable)
     return os.path.dirname(os.path.abspath(__file__))
+
+
+_PREFS_PATH = os.path.join(_exe_dir(), "user_prefs.json")
+
+
+def load_prefs() -> dict:
+    try:
+        with open(_PREFS_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+
+def save_prefs(prefs: dict) -> None:
+    with open(_PREFS_PATH, "w", encoding="utf-8") as f:
+        json.dump(prefs, f, ensure_ascii=False, indent=2)
 
 
 @dataclass

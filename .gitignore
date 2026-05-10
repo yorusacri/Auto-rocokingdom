@@ -23,6 +23,7 @@ env/
 
 # Project specific
 *.new
+user_prefs.json
 
 # PyInstaller
 dist/
