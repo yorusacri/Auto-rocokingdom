@@ -8,6 +8,7 @@ dependencies = [
     "numpy>=1.26.4",
     "mss>=9.0.1",
     "pywin32>=306",
+    "interception-python",
 ]
 
 [project.optional-dependencies]

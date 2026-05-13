@@ -1,5 +1,11 @@
 # 更新日志
 
+### 2026-05-13
+
+1. 输入方案改为 Interception 驱动级模拟：移除 SendInput/PostMessage 实现，改用 Interception 内核驱动，游戏反作弊无法检测。
+2. 依赖新增 `interception-python`：驱动级输入库，接口与 pydirectinput 兼容。
+3. README 更新：新增 Interception 驱动安装教程，修正输入方式描述，更新窗口前台/遮挡要求说明。
+
 ### 2026-05-02 (续)
 
 1. 修复智能模式战斗类型误判：战斗开始后延迟 0.5s 重新截图判型，避免过渡帧导致 capture/pollute_capture 分数过低而分类错误。

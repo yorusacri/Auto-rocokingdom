@@ -15,6 +15,7 @@ name = "auto-roco"
 version = "2.0.1"
 source = { virtual = "." }
 dependencies = [
+    { name = "interception-python" },
     { name = "mss" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "numpy", version = "2.4.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
@@ -34,6 +35,7 @@ easyocr = [
 [package.metadata]
 requires-dist = [
     { name = "easyocr", marker = "extra == 'easyocr'" },
+    { name = "interception-python" },
     { name = "mss", specifier = ">=9.0.1" },
     { name = "numpy", specifier = ">=1.26.4" },
     { name = "opencv-python", specifier = ">=4.9.0.80" },
@@ -100,6 +102,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/b1/84/93bcd1300216ea50811cee96873b84a1bebf8d0489ffaf7f2a3756bab866/imageio-2.37.3.tar.gz", hash = "sha256:bbb37efbfc4c400fcd534b367b91fcd66d5da639aaa138034431a1c5e0a41451", size = 389673, upload-time = "2026-03-09T11:31:12.573Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/49/fa/391e437a34e55095173dca5f24070d89cbc233ff85bf1c29c93248c6588d/imageio-2.37.3-py3-none-any.whl", hash = "sha256:46f5bb8522cd421c0f5ae104d8268f569d856b29eb1a13b92829d1970f32c9f0", size = 317646, upload-time = "2026-03-09T11:31:10.771Z" },
+]
+
+[[package]]
+name = "interception-python"
+version = "1.13.6"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/76/af/ade2c411c7e4ef42c1320d83eb8f500064f51f272ec2a05c746670b91864/interception_python-1.13.6.tar.gz", hash = "sha256:bf6a9750e40ca8599daa6c05f88748dd7efe040aea7f1aba258d2789a9930eda", size = 22137, upload-time = "2025-07-15T13:47:28.787Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1d/b9/609095f4c70d771dab361e50490941fd5cc735ab88c066ed8a60638115b9/interception_python-1.13.6-py3-none-any.whl", hash = "sha256:c14b0047513a7c1728b55e0516cbfbd99b1315a80e1a5aaf408baf8e9f937b3b", size = 22352, upload-time = "2025-07-15T13:47:27.648Z" },
 ]
 
 [[package]]
