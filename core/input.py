@@ -1,71 +1,44 @@
 import random
 import time
 
-import pydirectinput as pdi
-import win32api
-import win32con
+import interception
 import win32gui
 
-from config import CONFIG
+_init = False
 
 
-def _rand_delay(lo: float = 0.03, hi: float = 0.08) -> float:
-    return random.uniform(lo, hi)
+def _init():
+    global _init
+    if not _init:
+        interception.auto_capture_devices()
+        _init = True
 
-
-def _resolve_vk(key: str) -> int | None:
-    if key.lower() == "esc":
-        return win32con.VK_ESCAPE
-    if len(key) == 1:
-        return win32api.VkKeyScan(key) & 0xFF
-    return None
-
-
-# ── SendInput 方式 ──
-
-def _press_sendinput(hwnd: int, vk_code: int) -> None:
-    pdi.keyDown(vk_code)
-    time.sleep(_rand_delay(0.04, 0.10))
-    pdi.keyUp(vk_code)
-
-
-def _click_sendinput(hwnd: int, x: int | None = None, y: int | None = None) -> bool:
-    if x is not None and y is not None:
-        screen_pos = win32gui.ClientToScreen(hwnd, (x, y))
-        pdi.moveTo(screen_pos[0], screen_pos[1])
-        time.sleep(_rand_delay(0.03, 0.10))
-    pdi.mouseDown()
-    time.sleep(_rand_delay(0.10, 0.20))
-    pdi.mouseUp()
-    return True
-
-
-# ── PostMessage 方式（可后台，拟真度低） ──
-
-def _press_postmessage(hwnd: int, vk_code: int) -> None:
-    scan_code = win32api.MapVirtualKey(vk_code, 0)
-    lparam_down = 1 | (scan_code << 16)
-    lparam_up = 1 | (scan_code << 16) | (1 << 30) | (1 << 31)
-
-    win32gui.PostMessage(hwnd, win32con.WM_KEYDOWN, vk_code, lparam_down)
-    time.sleep(_rand_delay(0.03, 0.08))
-    win32gui.PostMessage(hwnd, win32con.WM_KEYUP, vk_code, lparam_up)
-
-
-# ── 公共入口 ──
 
 def press_once(hwnd: int, key: str) -> None:
-    vk_code = _resolve_vk(key)
-    if vk_code is None:
+    """按下并释放一个键（驱动级）。"""
+    if not key:
         return
-    if CONFIG.input_method == "postmessage":
-        _press_postmessage(hwnd, vk_code)
-    else:
-        _press_sendinput(hwnd, vk_code)
+    _init()
+    interception.key_down(key, delay=0)
+    time.sleep(random.uniform(0.04, 0.10))
+    interception.key_up(key, delay=0)
 
 
 def click_at(hwnd: int, x: int | None = None, y: int | None = None) -> bool:
+    """在窗口客户区坐标 (x, y) 处点击（驱动级）。不传坐标则在当前位置点击。"""
     try:
-        return _click_sendinput(hwnd, x, y)
+        _init()
+        if x is not None and y is not None:
+            sx, sy = win32gui.ClientToScreen(hwnd, (x, y))
+            interception.click(
+                sx + random.randint(-2, 2),
+                sy + random.randint(-2, 2),
+                delay=random.uniform(0.05, 0.12),
+            )
+        else:
+            interception.mouse_down()
+            time.sleep(random.uniform(0.04, 0.09))
+            interception.mouse_up()
+        return True
     except Exception:
         return False
