@@ -25,7 +25,7 @@
 提供开箱即用的免安装版本（Windows），从 [Releases](../../releases) 页面下载：
 
 | 版本 | 说明 |
-|------|------|------|
+|------|------|
 | `auto-roco-lite.zip` | 精简版，不含精灵识别 |
 | `auto-roco-full.zip` | 完整版，含 EasyOCR 精灵识别 |
 

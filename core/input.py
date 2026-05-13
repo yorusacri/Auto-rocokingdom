@@ -23,7 +23,6 @@ def press_once(hwnd: int, key: str) -> None:
     time.sleep(random.uniform(0.04, 0.10))
     interception.key_up(key, delay=0)
 
-
 def click_at(hwnd: int, x: int, y: int) -> bool:
     """在窗口客户区坐标 (x, y) 处点击（驱动级）。"""
     try:
