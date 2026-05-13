@@ -186,6 +186,8 @@ class Engine:
                     pollute_capture_score=result.pollute_capture_score,
                     window_width=width,
                     window_height=height,
+                    all_scores=all_matches,
+                    end_scores=end_scores,
                 )
                 self._mode.on_battle_start(event)
 
@@ -207,6 +209,8 @@ class Engine:
                     pollute_capture_score=pollute_capture_score,
                     window_width=width,
                     window_height=height,
+                    all_scores=all_matches,
+                    end_scores=end_scores,
                 )
                 self._mode.on_battle_end(event)
                 in_battle = False
@@ -241,6 +245,8 @@ class Engine:
                     pollute_capture_score=pollute_capture_score,
                     window_width=width,
                     window_height=height,
+                    all_scores=all_matches,
+                    end_scores=end_scores,
                 )
                 self._mode.on_non_battle_no_action(non_battle_event)
 
@@ -254,6 +260,8 @@ class Engine:
                 pollute_capture_score=pollute_capture_score,
                 window_width=width,
                 window_height=height,
+                all_scores=all_matches,
+                end_scores=end_scores,
             )
 
             # ── Action within battle ──

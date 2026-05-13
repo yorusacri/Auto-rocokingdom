@@ -36,9 +36,9 @@ def click_at(hwnd: int, x: int | None = None, y: int | None = None) -> bool:
                 delay=random.uniform(0.05, 0.12),
             )
         else:
-            interception.mouse_down()
-            time.sleep(random.uniform(0.04, 0.09))
-            interception.mouse_up()
+            interception.mouse_down("left")
+            time.sleep(random.uniform(0.20, 0.40))
+            interception.mouse_up("left")
         return True
     except Exception:
         return False

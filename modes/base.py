@@ -16,6 +16,8 @@ class BattleEvent:
     pollute_capture_score: float
     window_width: int
     window_height: int
+    all_scores: list = None
+    end_scores: list = None
 
 
 class BaseMode(ABC):
