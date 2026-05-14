@@ -53,9 +53,6 @@ class AppConfig:
     # User requirement: If in battle, keep pressing X with 1.0s interval.
     trigger_cooldown_sec: float = 1.0
 
-    # Input simulation method: "sendinput" (realistic, needs foreground) or "postmessage" (background, less stealth).
-    input_method: str = "sendinput"
-
     # Escape mode uses physical mouse click only.
     # Keep game window and confirmation button visible when triggering escape.
     escape_click_method: str = "physical"

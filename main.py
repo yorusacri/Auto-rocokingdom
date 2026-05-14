@@ -60,25 +60,6 @@ def main() -> None:
         mode_cls = MODE_REGISTRY.get(choice, MODE_REGISTRY["1"])
         mode = mode_cls()
 
-    # 输入方式选择
-    saved_method = prefs.get("input_method", "sendinput")
-    default_label = "（默认）" if saved_method == "sendinput" else ""
-    print(f"\n请选择输入方式:")
-    print(f"  1: sendinput（拟真度高，需游戏在前台）{default_label}")
-    default_label2 = "（默认）" if saved_method == "postmessage" else ""
-    print(f"  2: postmessage（可后台，拟真度低）{default_label2}")
-
-    input_choice = input("请输入选项 (1/2): ").strip()
-    if input_choice == "2":
-        CONFIG.input_method = "postmessage"
-    elif input_choice == "1":
-        CONFIG.input_method = "sendinput"
-    else:
-        CONFIG.input_method = saved_method
-
-    prefs["input_method"] = CONFIG.input_method
-    save_prefs(prefs)
-
     Engine(mode).run()
 
 
