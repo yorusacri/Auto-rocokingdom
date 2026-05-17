@@ -3,6 +3,7 @@ import time as _time
 from typing import Dict, List, Tuple
 
 import cv2
+import win32gui
 
 from config import CONFIG
 from core.battle_classify import classify_battle
@@ -89,7 +90,8 @@ class Engine:
 
             left, top, width, height = get_client_rect_on_screen(hwnd)
             if width <= 0 or height <= 0:
-                print(f"[{_ts()}] [警告] 窗口尺寸无效: {width}x{height}")
+                actual_title = win32gui.GetWindowText(hwnd)
+                print(f"[{_ts()}] [警告] 窗口尺寸无效: {width}x{height} ({actual_title})")
                 _time.sleep(interval)
                 continue
 
