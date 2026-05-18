@@ -4,21 +4,21 @@ import time
 import interception
 import win32gui
 
-_init = False
+_interception_ready = False
 
 
-def _init():
-    global _init
-    if not _init:
+def _ensure_interception():
+    global _interception_ready
+    if not _interception_ready:
         interception.auto_capture_devices()
-        _init = True
+        _interception_ready = True
 
 
 def press_once(hwnd: int, key: str) -> None:
     """按下并释放一个键（驱动级）。"""
     if not key:
         return
-    _init()
+    _ensure_interception()
     interception.key_down(key, delay=0)
     time.sleep(random.uniform(0.04, 0.10))
     interception.key_up(key, delay=0)
@@ -27,7 +27,7 @@ def press_once(hwnd: int, key: str) -> None:
 def click_at(hwnd: int, x: int | None = None, y: int | None = None) -> bool:
     """在窗口客户区坐标 (x, y) 处点击（驱动级）。不传坐标则在当前位置点击。"""
     try:
-        _init()
+        _ensure_interception()
         if x is not None and y is not None:
             sx, sy = win32gui.ClientToScreen(hwnd, (x, y))
             interception.click(
