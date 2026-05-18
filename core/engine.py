@@ -50,8 +50,9 @@ def _extract_roi(full_bgr, width: int, height: int, left_r: float, top_r: float,
 
 
 class Engine:
-    def __init__(self, mode: BaseMode) -> None:
+    def __init__(self, mode: BaseMode, hwnd: int | None = None) -> None:
         self._mode = mode
+        self._hwnd = hwnd
 
     def run(self) -> None:
         print(f"[{_ts()}] 检测器已启动（模式: {self._mode.label}），按 Ctrl+C 退出。")
@@ -82,11 +83,14 @@ class Engine:
         pollute_count = 0
 
         while True:
-            hwnd = find_window_by_keyword(CONFIG.window_title_keyword)
-            if hwnd is None:
-                print(f"[{_ts()}] [警告] 未找到游戏窗口: {CONFIG.window_title_keyword}")
-                _time.sleep(interval)
-                continue
+            if self._hwnd is not None:
+                hwnd = self._hwnd
+            else:
+                hwnd = find_window_by_keyword(CONFIG.window_title_keyword)
+                if hwnd is None:
+                    print(f"[{_ts()}] [警告] 未找到游戏窗口: {CONFIG.window_title_keyword}")
+                    _time.sleep(interval)
+                    continue
 
             left, top, width, height = get_client_rect_on_screen(hwnd)
             if width <= 0 or height <= 0:

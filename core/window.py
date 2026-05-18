@@ -1,5 +1,5 @@
 import ctypes
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import win32gui
 
@@ -13,6 +13,23 @@ except Exception:
 
 
 def find_window_by_keyword(keyword: str) -> Optional[int]:
+    matches = _enum_matching_windows(keyword)
+    if not matches:
+        return None
+    # 标题最短的最可能是主窗口
+    return min(matches, key=lambda m: len(m[1]))[0]
+
+
+def list_windows_by_keyword(keyword: str) -> List[Tuple[int, str, Tuple[int, int, int, int]]]:
+    """Return all matching windows with (hwnd, title, (x, y, w, h))."""
+    results: List[Tuple[int, str, Tuple[int, int, int, int]]] = []
+    for hwnd, title in _enum_matching_windows(keyword):
+        rect = get_client_rect_on_screen(hwnd)
+        results.append((hwnd, title, rect))
+    return results
+
+
+def _enum_matching_windows(keyword: str) -> list[tuple[int, str]]:
     matches: list[tuple[int, str]] = []
 
     def _enum_handler(hwnd: int, _ctx: object) -> None:
@@ -23,10 +40,7 @@ def find_window_by_keyword(keyword: str) -> Optional[int]:
             matches.append((hwnd, title))
 
     win32gui.EnumWindows(_enum_handler, None)
-    if not matches:
-        return None
-    # 标题最短的最可能是主窗口
-    return min(matches, key=lambda m: len(m[1]))[0]
+    return matches
 
 
 def get_client_rect_on_screen(hwnd: int) -> Tuple[int, int, int, int]:

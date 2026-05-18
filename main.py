@@ -1,11 +1,45 @@
 from config import CONFIG, load_prefs, save_prefs
 from core.engine import Engine
+from core.window import list_windows_by_keyword
 from modes import MODE_REGISTRY
 from modes.smart import ACTION_OPTIONS, SmartMode
 
 
 ACTION_LABELS = {key: label for key, (action, label) in ACTION_OPTIONS.items()}
 ACTION_VALUES = {action: label for key, (action, label) in ACTION_OPTIONS.items()}
+
+
+def _select_window() -> int | None:
+    keyword = CONFIG.window_title_keyword
+    windows = list_windows_by_keyword(keyword)
+
+    if not windows:
+        print(f"\n[错误] 未找到包含 \"{keyword}\" 的窗口，请确认游戏已启动。")
+        return None
+
+    print(f"\n找到 {len(windows)} 个匹配 \"{keyword}\" 的窗口:\n")
+    for i, (hwnd, title, (x, y, w, h)) in enumerate(windows, 1):
+        print(f"  {i}. {title}")
+        print(f"     句柄: {hwnd}  位置: ({x}, {y})  尺寸: {w}x{h}\n")
+
+    if len(windows) == 1:
+        hwnd, title, (_, _, w, h) = windows[0]
+        print(f"仅找到一个窗口，自动选择: {title}\n")
+    else:
+        while True:
+            sel = input(f"请选择窗口 (1-{len(windows)}): ").strip()
+            try:
+                idx = int(sel) - 1
+                if 0 <= idx < len(windows):
+                    break
+            except ValueError:
+                pass
+            print(f"输入无效，请输入 1-{len(windows)} 的数字")
+
+        hwnd, title, _ = windows[idx]
+        print(f"\n已选择: {title}\n")
+
+    return hwnd
 
 
 def _action_label(action: str) -> str:
@@ -60,7 +94,11 @@ def main() -> None:
         mode_cls = MODE_REGISTRY.get(choice, MODE_REGISTRY["1"])
         mode = mode_cls()
 
-    Engine(mode).run()
+    hwnd = _select_window()
+    if hwnd is None:
+        return
+
+    Engine(mode, hwnd=hwnd).run()
 
 
 if __name__ == "__main__":
