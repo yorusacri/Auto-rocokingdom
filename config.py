@@ -30,38 +30,49 @@ def load_prefs() -> dict:
 
 
 def save_prefs(prefs: dict) -> None:
+    """Save all preferences to user_prefs.json."""
+    full_prefs = load_prefs()
+    full_prefs.update(prefs)
     with open(_PREFS_PATH, "w", encoding="utf-8") as f:
-        json.dump(prefs, f, ensure_ascii=False, indent=2)
+        json.dump(full_prefs, f, ensure_ascii=False, indent=2)
+
+
+def _get_prefs_value(key: str, default, prefs: dict):
+    """Get value from prefs dict, returning default if key not present."""
+    return prefs.get(key, default)
+
+
+_USER_PREFS = load_prefs()
 
 
 @dataclass
 class AppConfig:
     # A visible window title keyword for your game client.
-    window_title_keyword: str = "洛克王国：世界"
+    window_title_keyword: str = _get_prefs_value("window_title_keyword", "洛克王国：世界", _USER_PREFS)
 
     # Reference resolution for template matching.
     # 2560x1600 is recommended for best matching accuracy.
-    ref_width: int = 2560
-    ref_height: int = 1600
-    require_exact_resolution: bool = False
+    ref_width: int = _get_prefs_value("ref_width", 2560, _USER_PREFS)
+    ref_height: int = _get_prefs_value("ref_height", 1600, _USER_PREFS)
+    require_exact_resolution: bool = _get_prefs_value("require_exact_resolution", False, _USER_PREFS)
 
     # Polling interval must be <= 5.0 seconds per user requirement.
-    poll_interval_sec: float = 2.0
+    poll_interval_sec: float = _get_prefs_value("poll_interval_sec", 2.0, _USER_PREFS)
 
     # Trigger exactly one key press on state transition.
-    press_key: str = "x"
+    press_key: str = _get_prefs_value("press_key", "x", _USER_PREFS)
     # User requirement: If in battle, keep pressing X with 1.0s interval.
-    trigger_cooldown_sec: float = 1.0
+    trigger_cooldown_sec: float = _get_prefs_value("trigger_cooldown_sec", 1.0, _USER_PREFS)
 
     # Escape mode uses physical mouse click only.
     # Keep game window and confirmation button visible when triggering escape.
-    escape_click_method: str = "physical"
+    escape_click_method: str = _get_prefs_value("escape_click_method", "physical", _USER_PREFS)
 
     # Detection settings.
-    match_threshold: float = 0.40
-    required_hits: int = 1
-    release_misses: int = 2
-    use_edge_match: bool = True
+    match_threshold: float = _get_prefs_value("match_threshold", 0.40, _USER_PREFS)
+    required_hits: int = _get_prefs_value("required_hits", 1, _USER_PREFS)
+    release_misses: int = _get_prefs_value("release_misses", 2, _USER_PREFS)
+    use_edge_match: bool = _get_prefs_value("use_edge_match", True, _USER_PREFS)
 
     # Detection ROI: right-bottom quarter of the window.
     roi_left_ratio: float = 0.5

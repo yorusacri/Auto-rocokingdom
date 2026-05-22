@@ -58,6 +58,11 @@ def build(name: str, extra_args: list[str] | None = None) -> None:
         if src.exists():
             shutil.copy2(src, out_dir / doc)
 
+    # Copy user_prefs.json into dist
+    prefs_src = PROJECT_DIR / "user_prefs.json"
+    if prefs_src.exists():
+        shutil.copy2(prefs_src, out_dir / "user_prefs.json")
+
     print(f"\n[OK] {name} built -> {out_dir}")
 
 

@@ -1,0 +1,6 @@
+{
+  "pollute_action": "gather",
+  "normal_action": "escape",
+  "poll_interval_sec": 2.0,
+  "match_threshold": 0.40
+}
