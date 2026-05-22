@@ -89,6 +89,7 @@ def main() -> None:
 
         prefs["pollute_action"] = pollute_action
         prefs["normal_action"] = normal_action
+        save_prefs(prefs)
         mode = SmartMode(pollute_action=pollute_action, normal_action=normal_action)
     else:
         mode_cls = MODE_REGISTRY.get(choice, MODE_REGISTRY["1"])
