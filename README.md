@@ -113,9 +113,9 @@ uv run main.py
 *   **战斗行为配置**：`user_prefs.json` 位于 exe 同目录下，`pollute_action` 和 `normal_action` 会根据用户运行时的选择自动保存，无需手动编辑。其他可选参数：
     | 参数 | 默认值 | 说明 |
     |------|--------|------|
-    | `pollute_action` | `"gather"` | 污染战斗行为：`gather`=聚能，`escape`=逃跑，`skill1_gather`=放技能1后聚能，`none`=不操作 |
-    | `normal_action` | `"escape"` | 普通战斗行为同上 |
-    | `poll_interval_sec` | 2.0 | 截图轮询间隔（秒），最大值 5.0 |
+    | `pollute_action` | `"skill1_gather"` | 污染战斗行为：`gather`=聚能，`escape`=逃跑，`skill1_gather`=放技能1后聚能，`none`=不操作 |
+    | `normal_action` | `"skill1_gather"` | 普通战斗行为同上 |
+    | `poll_interval_sec` | 2.0 | 非战斗状态截图轮询 / 自动丢球间隔（秒），最大值 5.0 |
     | `match_threshold` | 0.40 | 模板匹配阈值（0.0~1.0），低于此分数视为未命中 |
     > 若需调整更多参数（如 `trigger_cooldown_sec`、`required_hits` 等），请参考源码 `config.py` 中的 `AppConfig` 类。
 *   **停止方式**：在任何时候按下 **`Ctrl+C`** 即可安全退出。

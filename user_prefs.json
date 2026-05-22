@@ -1,6 +1,6 @@
 {
-  "pollute_action": "gather",
-  "normal_action": "escape",
+  "pollute_action": "skill1_gather",
+  "normal_action": "skill1_gather",
   "poll_interval_sec": 2.0,
-  "match_threshold": 0.40
+  "match_threshold": 0.4
 }
