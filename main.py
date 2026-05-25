@@ -103,4 +103,9 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    if "--gui" in sys.argv:
+        from core.gui import run_gui
+        run_gui()
+    else:
+        main()

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-label="洛克王国世界自动化脚本客户端透明图标" style="background: transparent;">
+  <!-- Transparent background: this SVG intentionally has no background rectangle. -->
+  <defs>
+    <linearGradient id="gold" x1="248" y1="174" x2="774" y2="858" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF4B8"/>
+      <stop offset="0.36" stop-color="#FFD84D"/>
+      <stop offset="0.72" stop-color="#E2A51A"/>
+      <stop offset="1" stop-color="#A46B00"/>
+    </linearGradient>
+    <linearGradient id="goldEdge" x1="512" y1="138" x2="512" y2="888" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#C18A05"/>
+      <stop offset="1" stop-color="#6F4700"/>
+    </linearGradient>
+    <linearGradient id="deepBlue" x1="280" y1="288" x2="764" y2="778" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1558C7"/>
+      <stop offset="0.58" stop-color="#07337E"/>
+      <stop offset="1" stop-color="#061642"/>
+    </linearGradient>
+    <linearGradient id="crystal" x1="398" y1="280" x2="654" y2="748" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#BFFBFF"/>
+      <stop offset="0.38" stop-color="#21BFFF"/>
+      <stop offset="0.76" stop-color="#1372EC"/>
+      <stop offset="1" stop-color="#082EB7"/>
+    </linearGradient>
+    <linearGradient id="crystalLight" x1="420" y1="354" x2="548" y2="626" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.82"/>
+      <stop offset="1" stop-color="#A9F7FF" stop-opacity="0.08"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#05245A" flood-opacity="0.28"/>
+    </filter>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Magic orbit accents -->
+  <g opacity="0.92" fill="none" stroke-linecap="round">
+    <path d="M138 560C210 494 292 462 384 466" stroke="#5CE2FF" stroke-width="18"/>
+    <path d="M660 454C757 459 837 501 896 574" stroke="#5CE2FF" stroke-width="18"/>
+  </g>
+
+  <!-- Main emblem -->
+  <g filter="url(#shadow)">
+    <!-- Gear crest, transparent center created with evenodd path -->
+    <path fill="url(#gold)" stroke="url(#goldEdge)" stroke-width="18" stroke-linejoin="round" fill-rule="evenodd"
+      d="M512 173
+         L562 184 L587 248 L656 246 L703 293 L698 362 L758 396 L770 462 L724 512 L770 562 L758 628 L698 662 L703 731 L656 778 L587 776 L562 840 L512 851 L462 840 L437 776 L368 778 L321 731 L326 662 L266 628 L254 562 L300 512 L254 462 L266 396 L326 362 L321 293 L368 246 L437 248 L462 184 Z
+         M512 264
+         C375 264 264 375 264 512
+         C264 649 375 760 512 760
+         C649 760 760 649 760 512
+         C760 375 649 264 512 264 Z"/>
+
+    <!-- Deep blue inner shield/disk -->
+    <circle cx="512" cy="512" r="230" fill="url(#deepBlue)" stroke="#F5FAFF" stroke-width="12"/>
+
+    <!-- Automation circuit traces -->
+    <g stroke="#FFE27A" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <path d="M286 520H370V444H424"/>
+      <path d="M738 520H654V444H600"/>
+      <path d="M374 583L429 638" opacity="0.82"/>
+      <path d="M650 583L595 638" opacity="0.82"/>
+    </g>
+    <g fill="#FFF0A3" stroke="#9B6900" stroke-width="10">
+      <circle cx="286" cy="520" r="28"/>
+      <circle cx="738" cy="520" r="28"/>
+      <circle cx="370" cy="444" r="24"/>
+      <circle cx="654" cy="444" r="24"/>
+    </g>
+
+    <!-- Crown silhouette -->
+    <path fill="url(#gold)" stroke="url(#goldEdge)" stroke-width="18" stroke-linejoin="round"
+      d="M314 359L350 192L461 288L512 126L563 288L674 192L710 359L621 356L589 308L512 342L435 308L403 356Z"/>
+    <path d="M512 184L540 250L512 302L484 250Z" fill="#A36B00" opacity="0.28"/>
+    <path d="M512 258L548 306L512 354L476 306Z" fill="#37CFFF" stroke="#0C64CC" stroke-width="8"/>
+
+    <!-- Central crystal -->
+    <g filter="url(#glow)">
+      <path d="M512 300L646 440L620 672L512 796L404 672L378 440Z"
+            fill="url(#crystal)" stroke="#FFFFFF" stroke-width="14" stroke-linejoin="round"/>
+      <path d="M512 300L512 796L404 672L378 440Z" fill="url(#crystalLight)"/>
+      <path d="M512 300L646 440L620 672L512 796Z" fill="#0032B0" opacity="0.25"/>
+      <path d="M512 300L458 565L512 796L566 565Z" fill="#DDFBFF" opacity="0.24"/>
+      <path d="M435 462L500 340L474 592Z" fill="#FFFFFF" opacity="0.42"/>
+      <path d="M512 490L535 548L512 606L489 548Z" fill="#FFFFFF"/>
+      <path d="M454 548L512 571L570 548L512 525Z" fill="#FFFFFF"/>
+    </g>
+  </g>
+
+  <!-- Floating sparkles; no background -->
+  <g fill="#2BA8FF">
+    <path d="M205 260L225 311L276 331L225 351L205 402L185 351L134 331L185 311Z"/>
+    <path d="M812 220L835 278L893 301L835 324L812 382L789 324L731 301L789 278Z"/>
+    <path d="M256 774L270 810L306 824L270 838L256 874L242 838L206 824L242 810Z"/>
+    <path d="M738 380L749 407L776 418L749 429L738 456L727 429L700 418L727 407Z"/>
+  </g>
+  <g fill="#F6C83D">
+    <circle cx="181" cy="424" r="13"/>
+    <circle cx="853" cy="424" r="12"/>
+    <path d="M776 318L785 340L807 349L785 358L776 380L767 358L745 349L767 340Z"/>
+  </g>
+</svg>
