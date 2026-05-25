@@ -31,8 +31,9 @@ class _TeeStdout:
         self._line = ""
 
     def write(self, s: str) -> None:
-        self._original.write(s)
-        self._original.flush()
+        if self._original is not None:
+            self._original.write(s)
+            self._original.flush()
         with _stdout_lock:
             self._line += s
             if "\n" in self._line:
@@ -43,7 +44,8 @@ class _TeeStdout:
                         _stdout_buffer.append(line)
 
     def flush(self) -> None:
-        self._original.flush()
+        if self._original is not None:
+            self._original.flush()
 
 
 def _drain_log() -> list[str]:

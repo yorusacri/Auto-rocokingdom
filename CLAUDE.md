@@ -86,10 +86,11 @@ GUI settings panel saves to `user_prefs.json` via `save_prefs()`; changes take e
 
 ## Commit Rules
 
-Before every git commit:
-1. Review CHANGELOG.md and add entries for all functional changes (new features, bug fixes) first; structural/refactor changes are secondary.
-2. Review README.md and update any sections affected by the changes.
-3. Review `.gitignore` and add any new files or directories that should not be tracked.
+- **Only commit/push when the user explicitly says "commit" or "push".** Do not commit after every fix.
+- Before every git commit:
+  1. Review CHANGELOG.md and add entries for all functional changes (new features, bug fixes) first; structural/refactor changes are secondary.
+  2. Review README.md and update any sections affected by the changes.
+  3. Review `.gitignore` and add any new files or directories that should not be tracked.
 
 ## Template Roles
 
