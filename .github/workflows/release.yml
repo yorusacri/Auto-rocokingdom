@@ -9,20 +9,22 @@ permissions:
   contents: write
 
 jobs:
-  build-lite:
+  build-client-lite:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
         with:
           sparse-checkout: |
-            user_prefs.json
-            build.py
-            main.py
+            auto-roco-client-lite.spec
+            client_main.py
             config.py
             core/
             modes/
             templates/
+            web/
             pyproject.toml
+            README.md
+            CHANGELOG.md
 
       - name: Install uv
         uses: astral-sh/setup-uv@v4
@@ -36,29 +38,36 @@ jobs:
       - name: Install PyInstaller
         run: uv pip install pyinstaller
 
-      - name: Build lite version
-        run: uv run python build.py lite
+      - name: Build
+        run: pyinstaller auto-roco-client-lite.spec
 
-      - name: Upload lite artifact
+      - name: Copy docs
+        run: |
+          copy README.md dist\auto-roco-client-lite\
+          copy CHANGELOG.md dist\auto-roco-client-lite\
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: auto-roco-lite
-          path: dist/auto-roco-lite/
+          name: auto-roco-client-lite
+          path: dist/auto-roco-client-lite/
 
-  build-full:
+  build-client-full:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
         with:
           sparse-checkout: |
-            user_prefs.json
-            build.py
-            main.py
+            auto-roco-client-full.spec
+            client_main.py
             config.py
             core/
             modes/
             templates/
+            web/
             pyproject.toml
+            README.md
+            CHANGELOG.md
 
       - name: Install uv
         uses: astral-sh/setup-uv@v4
@@ -72,38 +81,42 @@ jobs:
       - name: Install PyInstaller
         run: uv pip install pyinstaller
 
-      - name: Build full version
-        run: uv run python build.py full
+      - name: Build
+        run: pyinstaller auto-roco-client-full.spec
 
-      - name: Upload full artifact
+      - name: Copy docs
+        run: |
+          copy README.md dist\auto-roco-client-full\
+          copy CHANGELOG.md dist\auto-roco-client-full\
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: auto-roco-full
-          path: dist/auto-roco-full/
+          name: auto-roco-client-full
+          path: dist/auto-roco-client-full/
 
   release:
-    needs: [build-lite, build-full]
+    needs: [build-client-lite, build-client-full]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download lite artifact
+      - name: Download lite
         uses: actions/download-artifact@v4
         with:
-          name: auto-roco-lite
-          path: auto-roco-lite/
+          name: auto-roco-client-lite
+          path: auto-roco-client-lite/
 
-      - name: Download full artifact
+      - name: Download full
         uses: actions/download-artifact@v4
         with:
-          name: auto-roco-full
-          path: auto-roco-full/
+          name: auto-roco-client-full
+          path: auto-roco-client-full/
 
-      - name: Zip lite
-        run: cd auto-roco-lite && zip -r ../auto-roco-lite.zip .
-
-      - name: Zip full
-        run: cd auto-roco-full && zip -r ../auto-roco-full.zip .
+      - name: Zip
+        run: |
+          cd auto-roco-client-lite && zip -r ../auto-roco-client-lite.zip .
+          cd ../auto-roco-client-full && zip -r ../auto-roco-client-full.zip .
 
       - name: Create Release
         env:
@@ -113,5 +126,5 @@ jobs:
           gh release create "$tag" \
             --title "Auto-Roco $tag" \
             --generate-notes \
-            auto-roco-lite.zip \
-            auto-roco-full.zip
+            auto-roco-client-lite.zip \
+            auto-roco-client-full.zip

@@ -9,6 +9,7 @@ dependencies = [
     "mss>=9.0.1",
     "pywin32>=306",
     "interception-python",
+    "eel",
 ]
 
 [project.optional-dependencies]

@@ -23,6 +23,12 @@ class SmartMode(BaseMode):
         self._current_action: Optional[str] = None
         self._skill1_used = False
 
+    def set_pollute_action(self, action: str) -> None:
+        self._pollute_action = action
+
+    def set_normal_action(self, action: str) -> None:
+        self._normal_action = action
+
     @property
     def name(self) -> str:
         return "smart"

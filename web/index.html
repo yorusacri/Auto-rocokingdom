@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auto-Roco</title>
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════
+   CSS Variables & Reset
+   ══════════════════════════════════════════════════════════════ */
+:root {
+  --bg-root: #07070e;
+  --bg-surface: #0f0f1a;
+  --bg-card: #161625;
+  --bg-card-hover: #1b1b2e;
+  --bg-input: #11111f;
+  --border: #222236;
+  --border-active: #363656;
+  --border-subtle: rgba(255,255,255,0.05);
+
+  --amber: #e4a020;
+  --amber-dim: rgba(228,160,32,0.18);
+  --amber-glow: rgba(228,160,32,0.35);
+  --cyan: #20c8b8;
+  --cyan-dim: rgba(32,200,184,0.15);
+  --green: #3dd68c;
+  --green-dim: rgba(61,214,140,0.18);
+  --red: #f43f5e;
+  --red-dim: rgba(244,63,94,0.18);
+  --red-glow: rgba(244,63,94,0.40);
+
+  --text: #d0cdc6;
+  --text-dim: #7c7c94;
+  --text-muted: #4a4a5e;
+
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 10px;
+
+  --font-ui: "Rajdhani", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Code", "Fira Code", monospace;
+  --font-cn: "Noto Sans SC", "Microsoft YaHei", "PingFang SC", sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  font-family: var(--font-cn);
+  font-weight: 400;
+  color: var(--text);
+  background-color: var(--bg-root);
+  background-image:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(228,160,32,0.025) 0%, transparent 60%),
+    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 100% 100%, 20px 20px;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   App Layout
+   ══════════════════════════════════════════════════════════════ */
+.app {
+  display: grid;
+  grid-template-rows: 72px 1fr;
+  height: 100vh;
+  max-height: 100vh;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Header / Top Bar
+   ══════════════════════════════════════════════════════════════ */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  gap: 20px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 180px;
+}
+
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  box-shadow: 0 0 0 0 transparent;
+  transition: background 0.3s, box-shadow 0.3s;
+  flex-shrink: 0;
+}
+.status-dot.running { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.status-dot.paused  { background: var(--amber); box-shadow: 0 0 8px var(--amber-glow); animation: dot-pulse 2s ease-in-out infinite; }
+.status-dot.battle  { background: var(--cyan); box-shadow: 0 0 10px rgba(32,200,184,0.6); animation: dot-pulse 0.6s ease-in-out infinite; }
+
+@keyframes dot-pulse {
+  0%, 100% { box-shadow: 0 0 6px currentColor; }
+  50%      { box-shadow: 0 0 16px currentColor; }
+}
+
+.brand h1 {
+  font-family: var(--font-ui);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text);
+  white-space: nowrap;
+}
+.brand h1 span { color: var(--amber); }
+
+/* ── Pause Button ── */
+.pause-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.pause-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 170px;
+  height: 44px;
+  border: 2px solid var(--amber);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(228,160,32,0.12) 0%, rgba(228,160,32,0.03) 100%);
+  color: var(--amber);
+  font-family: var(--font-cn);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+.pause-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 50% 30%, rgba(228,160,32,0.18) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.pause-btn:hover { border-color: #f0b830; color: #f0b830; box-shadow: 0 0 28px var(--amber-glow); }
+.pause-btn:hover::after { opacity: 1; }
+.pause-btn:active { transform: scale(0.96); transition: transform 0.1s; }
+
+.pause-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+.pause-btn svg path { fill: currentColor; }
+
+/* Paused state */
+.pause-btn.is-paused {
+  border-color: var(--red);
+  background: linear-gradient(180deg, rgba(244,63,94,0.14) 0%, rgba(244,63,94,0.04) 100%);
+  color: var(--red);
+  animation: pause-glow 2.4s ease-in-out infinite;
+}
+.pause-btn.is-paused::after {
+  background: radial-gradient(ellipse 60% 50% at 50% 30%, rgba(244,63,94,0.22) 0%, transparent 70%);
+}
+.pause-btn.is-paused:hover { border-color: #f7627e; color: #f7627e; box-shadow: 0 0 32px var(--red-glow); }
+
+@keyframes pause-glow {
+  0%, 100% { box-shadow: 0 0 12px var(--red-dim); }
+  50%      { box-shadow: 0 0 30px var(--red-glow); }
+}
+
+/* Quick stats in header */
+.quick-stats {
+  display: flex;
+  gap: 24px;
+  min-width: 160px;
+  justify-content: flex-end;
+}
+.quick-stat {
+  text-align: right;
+}
+.quick-stat .val {
+  font-family: var(--font-ui);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text);
+}
+.quick-stat .lbl {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Main Content
+   ══════════════════════════════════════════════════════════════ */
+.main {
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  overflow: hidden;
+  height: 100%;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Sidebar
+   ══════════════════════════════════════════════════════════════ */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  background: rgba(15,15,26,0.5);
+  overflow: hidden;
+}
+.sidebar-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 18px 16px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sidebar-bottom {
+  flex-shrink: 0;
+  padding: 8px 16px 14px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.section-label {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  padding: 0 2px;
+}
+
+/* ── Stat cards ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+.stat-card:hover { border-color: var(--border-active); }
+.stat-card .val {
+  font-family: var(--font-ui);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text);
+}
+.stat-card .lbl {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 4px;
+  letter-spacing: 1px;
+}
+.stat-card.pollute .val { color: var(--amber); }
+
+.score-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  transition: border-color 0.3s;
+}
+.score-card:hover { border-color: var(--border-active); }
+.score-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 3px 0;
+}
+.score-row .lbl { font-size: 11px; color: var(--text-dim); }
+.score-row .val {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--cyan);
+}
+.score-row .val.high { color: var(--green); }
+.score-row .val.mid  { color: var(--amber); }
+
+/* ── Mode selector ── */
+.mode-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mode-option {
+  position: relative;
+}
+.mode-option input { display: none; }
+.mode-option label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.mode-option label:hover { border-color: var(--border-active); color: var(--text); }
+.mode-option input:checked + label {
+  border-color: var(--amber);
+  color: var(--amber);
+  background: var(--amber-dim);
+}
+.mode-option input:disabled + label {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.mode-option label .indicator {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  border: 2px solid var(--border-active);
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.mode-option input:checked + label .indicator {
+  border-color: var(--amber);
+  background: var(--amber);
+  box-shadow: 0 0 8px var(--amber-glow);
+}
+
+/* ── Sub-options (smart mode) ── */
+.sub-options {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  padding: 6px 2px 2px;
+}
+.sub-options.visible { display: flex; }
+
+.sub-option {}
+.sub-option .lbl {
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+  display: block;
+}
+.sub-option .choices {
+  display: flex;
+  gap: 4px;
+}
+.sub-option .choices button {
+  flex: 1;
+  padding: 6px 0;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  font-family: var(--font-cn);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+  outline: none;
+}
+.sub-option .choices button:hover { color: var(--text); border-color: var(--border-active); }
+.sub-option .choices button.active {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: var(--cyan-dim);
+}
+
+/* ── Window selector ── */
+.btn-sm {
+  padding: 3px 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--cyan);
+  font-family: var(--font-cn);
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  outline: none;
+  letter-spacing: 1px;
+}
+.btn-sm:hover { border-color: var(--cyan); background: var(--cyan-dim); }
+.btn-sm:active { transform: scale(0.95); }
+
+.window-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 130px;
+  overflow-y: auto;
+}
+.window-list::-webkit-scrollbar { width: 4px; }
+.window-list::-webkit-scrollbar-track { background: transparent; }
+.window-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.window-status {
+  padding: 4px 2px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.window-option { position: relative; }
+.window-option input { display: none; }
+.window-option label {
+  display: block;
+  padding: 7px 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  word-break: break-all;
+}
+.window-option label:hover { border-color: var(--border-active); color: var(--text); }
+.window-option input:checked + label {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: var(--cyan-dim);
+}
+.window-option label .win-title { font-weight: 500; }
+.window-option label .win-info { font-size: 10px; color: var(--text-muted); display: block; }
+
+/* ── Actions ── */
+.action-row {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+.btn {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  color: var(--text);
+  font-family: var(--font-cn);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  outline: none;
+}
+.btn:hover { border-color: var(--border-active); background: var(--bg-card-hover); }
+.btn:active { transform: scale(0.97); }
+.btn.primary {
+  flex: 1;
+  background: var(--amber-dim);
+  border-color: var(--amber);
+  color: var(--amber);
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+.btn.primary:hover { box-shadow: 0 0 20px var(--amber-glow); background: rgba(228,160,32,0.22); }
+
+.btn.btn-stop {
+  flex: 1;
+  background: var(--red-dim);
+  border-color: var(--red);
+  color: var(--red);
+  font-weight: 700;
+}
+.btn.btn-stop:hover { box-shadow: 0 0 16px var(--red-glow); background: rgba(244,63,94,0.22); }
+
+/* ══════════════════════════════════════════════════════════════
+   Log Terminal
+   ══════════════════════════════════════════════════════════════ */
+.log-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: rgba(0,0,0,0.25);
+}
+
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.log-header .title {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.log-header .count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.log-header .count span { color: var(--cyan); }
+
+.log-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 18px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.7;
+  scroll-behavior: smooth;
+  position: relative;
+}
+.log-container::-webkit-scrollbar { width: 6px; }
+.log-container::-webkit-scrollbar-track { background: transparent; }
+.log-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.log-container::-webkit-scrollbar-thumb:hover { background: var(--border-active); }
+
+.log-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+  font-family: var(--font-cn);
+  font-size: 14px;
+  opacity: 0.6;
+}
+
+.log-entry {
+  display: flex;
+  gap: 10px;
+  padding: 1px 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  animation: log-in 0.2s ease-out;
+}
+@keyframes log-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.log-entry .ts { color: var(--text-muted); flex-shrink: 0; }
+.log-entry .msg { color: var(--text-dim); }
+.log-entry.battle-start .msg { color: var(--green); }
+.log-entry.battle-end   .msg { color: var(--cyan); }
+.log-entry.pollute      .msg { color: var(--amber); }
+.log-entry.warning      .msg { color: #f59e0b; }
+.log-entry.error        .msg { color: var(--red); }
+.log-entry.pause        .msg { color: var(--red); font-weight: 600; }
+.log-entry.resume       .msg { color: var(--green); font-weight: 600; }
+.log-entry.info         .msg { color: var(--text-dim); }
+
+/* ── Settings Button ── */
+.btn-icon {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  font-size: 18px;
+  width: 32px; height: 32px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  outline: none;
+  flex-shrink: 0;
+}
+.btn-icon:hover { color: var(--amber); border-color: var(--amber); }
+
+/* ── Settings Modal ── */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.65);
+  z-index: 100;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.visible { display: flex; }
+
+.modal {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  width: 380px;
+  max-width: 90vw;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+}
+.modal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-header h2 { font-family: var(--font-ui); font-size: 16px; font-weight: 600; letter-spacing: 2px; color: var(--text); }
+.btn-close { background: none; border: none; color: var(--text-dim); font-size: 20px; cursor: pointer; padding: 0 4px; }
+.btn-close:hover { color: var(--text); }
+
+.modal-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+
+.setting-row { display: flex; flex-direction: column; gap: 6px; }
+.setting-row label { font-size: 13px; color: var(--text); }
+.setting-val { font-family: var(--font-mono); font-size: 12px; color: var(--cyan); margin-left: 4px; }
+.setting-hint { font-size: 10px; color: var(--text-muted); }
+
+input[type=range] {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--amber);
+  border: 2px solid var(--bg-surface);
+  cursor: pointer;
+  box-shadow: 0 0 8px var(--amber-glow);
+}
+
+.setting-note { font-size: 10px; color: var(--text-muted); margin: 0; }
+
+.modal-footer { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+.modal-footer .btn { padding: 6px 16px; font-size: 12px; }
+
+/* ══════════════════════════════════════════════════════════════
+   Hidden idle state
+   ══════════════════════════════════════════════════════════════ */
+.app.idle .pause-btn { opacity: 0.4; pointer-events: none; border-color: var(--border); color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<div class="app idle" id="appRoot">
+  <!-- ── Top Bar ── -->
+  <header class="top-bar">
+    <div class="brand">
+      <div class="status-dot" id="statusDot"></div>
+      <h1>AUTO<span>-ROCO</span></h1>
+    </div>
+
+    <div class="pause-wrap">
+      <button class="pause-btn" id="pauseBtn" disabled>
+        <svg id="pauseIcon" viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+        <svg id="playIcon" viewBox="0 0 24 24" style="display:none"><path d="M6 3.5v17l14-8.5z"/></svg>
+        <span id="pauseLabel">暂 停</span>
+      </button>
+    </div>
+
+    <div class="quick-stats">
+      <div class="quick-stat">
+        <div class="val" id="qBattle">0</div>
+        <div class="lbl">战斗</div>
+      </div>
+      <div class="quick-stat">
+        <div class="val" id="qPollute">0</div>
+        <div class="lbl">污染</div>
+      </div>
+      <button class="btn-icon" id="btnSettings" title="设置">&#9881;</button>
+    </div>
+  </header>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <aside class="sidebar">
+      <div class="sidebar-scroll">
+      <div class="section-label">运行状态</div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="val" id="sBattle">0</div>
+          <div class="lbl">战斗场次</div>
+        </div>
+        <div class="stat-card pollute">
+          <div class="val" id="sPollute">0</div>
+          <div class="lbl">污染次数</div>
+        </div>
+      </div>
+
+      <div class="score-card">
+        <div class="score-row"><span class="lbl">行动模板</span><span class="val" id="sActionTpl">--</span></div>
+        <div class="score-row"><span class="lbl">行动分数</span><span class="val" id="sActionScore">--</span></div>
+        <div class="score-row"><span class="lbl">结束分数</span><span class="val" id="sEndScore">--</span></div>
+        <div class="score-row"><span class="lbl">同行检测</span><span class="val" id="sReconnect">--</span></div>
+      </div>
+
+      <div class="section-label">运行模式</div>
+      <div class="mode-selector" id="modeSelector">
+        <!-- Populated by JS -->
+      </div>
+
+      <div class="sub-options" id="subOptions">
+        <div class="sub-option">
+          <span class="lbl">污染战斗行为</span>
+          <div class="choices" id="polluteActions"></div>
+        </div>
+        <div class="sub-option" style="margin-top:6px">
+          <span class="lbl">普通战斗行为</span>
+          <div class="choices" id="normalActions"></div>
+        </div>
+      </div>
+
+      </div><!-- /sidebar-scroll -->
+
+      <div class="sidebar-bottom">
+      <div class="section-label" style="display:flex;justify-content:space-between;align-items:center">
+        <span>目标窗口</span>
+        <button class="btn-sm" id="btnRefreshWindows">刷新</button>
+      </div>
+      <div class="window-status" id="windowStatus">点击刷新查找游戏窗口…</div>
+      <div class="window-list" id="windowList"></div>
+
+      <div class="action-row">
+        <button class="btn btn-stop" id="btnStop" style="display:none">停止引擎</button>
+        <button class="btn primary" id="btnStart">开始运行</button>
+      </div>
+      </div><!-- /sidebar-bottom -->
+    </aside>
+
+    <!-- ═══ Settings Modal ═══ -->
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>设置</h2>
+          <button class="btn-close" id="btnCloseSettings">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="setting-row">
+            <label>匹配阈值 <span class="setting-val" id="thresholdVal">0.40</span></label>
+            <input type="range" id="thresholdSlider" min="0.20" max="0.80" step="0.05" value="0.40">
+            <span class="setting-hint">越低越灵敏，越高越严格</span>
+          </div>
+          <div class="setting-row">
+            <label>检测间隔 <span class="setting-val" id="intervalVal">2.0s</span></label>
+            <input type="range" id="intervalSlider" min="0.5" max="5.0" step="0.5" value="2.0">
+            <span class="setting-hint">每次检测的等待时间（秒）</span>
+          </div>
+          <p class="setting-note">设置保存后需重新启动引擎生效。</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" id="btnCancelSettings">取消</button>
+          <button class="btn primary" id="btnSaveSettings">保存设置</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Log ── -->
+    <div class="log-panel">
+      <div class="log-header">
+        <span class="title">引擎日志</span>
+        <span class="count"><span id="logCount">0</span> 条</span>
+      </div>
+      <div class="log-container" id="logContainer">
+        <div class="log-empty" id="logEmpty">等待引擎启动…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript" src="/eel.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   Eel detection — only mock when eel.js failed to load at all.
+   (eel.js defines window.eel synchronously; websocket connects async.)
+   ═══════════════════════════════════════════════════════════════ */
+if (typeof eel === 'undefined') {
+  // Running in a regular browser — mock for UI testing
+  window._mockEel = true;
+  window.eel = { expose: function() {} };
+  var _mockFns = ['start_engine', 'stop_engine', 'toggle_pause',
+    'set_mode', 'set_pollute_action', 'set_normal_action', 'switch_window',
+    'get_settings', 'save_settings', 'get_gui_prefs', 'save_gui_prefs'];
+  _mockFns.forEach(function(fn) {
+    window.eel[fn] = function() {
+      return function(cb) { if (cb) setTimeout(function() { cb(null); }, 50); };
+    };
+  });
+  // list_windows calls onWindowsListed via Python push
+  window.eel.list_windows = function() {
+    return function(cb) {
+      setTimeout(function() {
+        onWindowsListed([
+          { hwnd: 99999, title: '洛克王国：世界 (Mock)', width: 2560, height: 1600 }
+        ]);
+        if (cb) cb(null);
+      }, 100);
+    };
+  };
+} else {
+  window._mockEel = false;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   State
+   ═══════════════════════════════════════════════════════════════ */
+const MODES = [
+  { key: 'smart',     label: '智能模式',   desc: '根据战斗类型自动切换行为' },
+  { key: 'auto_ball', label: '自动丢球',   desc: '非战斗状态自动丢球捕捉' },
+];
+
+const ACTIONS = [
+  { key: 'gather', label: '聚能' },
+  { key: 'escape', label: '逃跑' },
+  { key: 'skill1_gather', label: '技能1+聚能' },
+  { key: 'none', label: '不操作' },
+];
+
+const state = {
+  running: false,
+  paused: false,
+  inBattle: false,
+  mode: 'smart',
+  polluteAction: 'gather',
+  normalAction: 'escape',
+  selectedHwnd: null,
+  selectedTitle: '',
+  matchThreshold: 0.4,
+  pollInterval: 2.0,
+  battleCount: 0,
+  polluteCount: 0,
+  actionTemplate: '--',
+  actionScore: '--',
+  endScore: '--',
+  reconnectScore: '--',
+  logCount: 0,
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   DOM refs
+   ═══════════════════════════════════════════════════════════════ */
+const $ = (s) => document.querySelector(s);
+const dom = {
+  app:        $('#appRoot'),
+  statusDot:  $('#statusDot'),
+  pauseBtn:   $('#pauseBtn'),
+  pauseIcon:  $('#pauseIcon'),
+  playIcon:   $('#playIcon'),
+  pauseLabel: $('#pauseLabel'),
+  btnStart:   $('#btnStart'),
+  btnStop:    $('#btnStop'),
+  qBattle:    $('#qBattle'),
+  qPollute:   $('#qPollute'),
+  sBattle:    $('#sBattle'),
+  sPollute:   $('#sPollute'),
+  sActionTpl: $('#sActionTpl'),
+  sActionScore:$('#sActionScore'),
+  sEndScore:  $('#sEndScore'),
+  sReconnect: $('#sReconnect'),
+  modeSelector: $('#modeSelector'),
+  subOptions: $('#subOptions'),
+  polluteActions: $('#polluteActions'),
+  normalActions: $('#normalActions'),
+  windowList: $('#windowList'),
+  windowStatus: $('#windowStatus'),
+  btnRefreshWindows: $('#btnRefreshWindows'),
+  logContainer: $('#logContainer'),
+  logEmpty:   $('#logEmpty'),
+  logCount:   $('#logCount'),
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   Init Mode Selector
+   ═══════════════════════════════════════════════════════════════ */
+function buildModeSelector() {
+  dom.modeSelector.innerHTML = MODES.map(m =>
+    `<div class="mode-option">
+      <input type="radio" name="mode" value="${m.key}" id="mode_${m.key}" ${m.key === state.mode ? 'checked' : ''}>
+      <label for="mode_${m.key}"><span class="indicator"></span>${m.label}</label>
+    </div>`
+  ).join('');
+
+  dom.modeSelector.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('change', () => {
+      if (!inp.checked) return;
+      setMode(inp.value);
+    });
+  });
+
+  // Sub-action buttons
+  function buildChoices(parent, selected, onChange) {
+    parent.innerHTML = ACTIONS.map(a =>
+      `<button class="${a.key === selected ? 'active' : ''}" data-key="${a.key}">${a.label}</button>`
+    ).join('');
+    parent.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        parent.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        onChange(btn.dataset.key);
+      });
+    });
+  }
+
+  buildChoices(dom.polluteActions, state.polluteAction, function(key) {
+    state.polluteAction = key;
+    eel.set_pollute_action(key)();
+    persistPrefs();
+  });
+
+  buildChoices(dom.normalActions, state.normalAction, function(key) {
+    state.normalAction = key;
+    eel.set_normal_action(key)();
+    persistPrefs();
+  });
+
+  updateSubOptions();
+}
+
+function setMode(key) {
+  state.mode = key;
+  updateSubOptions();
+  eel.set_mode(key)();
+  persistPrefs();
+}
+
+function updateSubOptions() {
+  dom.subOptions.classList.toggle('visible', state.mode === 'smart');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Log
+   ═══════════════════════════════════════════════════════════════ */
+const MAX_LOG = 500;
+
+function addLog(level, message) {
+  const time = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+  const entry = document.createElement('div');
+  entry.className = 'log-entry ' + level;
+  entry.innerHTML = `<span class="ts">[${time}]</span><span class="msg">${escHtml(message)}</span>`;
+  dom.logContainer.appendChild(entry);
+
+  // Trim old entries
+  while (dom.logContainer.children.length > MAX_LOG + 1) {
+    dom.logContainer.firstChild.remove();
+  }
+
+  state.logCount++;
+  dom.logCount.textContent = state.logCount;
+  dom.logEmpty.style.display = 'none';
+
+  // Auto-scroll
+  const c = dom.logContainer;
+  const atBottom = c.scrollHeight - c.scrollTop - c.clientHeight < 80;
+  if (atBottom) c.scrollTop = c.scrollHeight;
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function clearLog() {
+  dom.logContainer.innerHTML = '';
+  dom.logContainer.appendChild(dom.logEmpty);
+  dom.logEmpty.style.display = 'flex';
+  state.logCount = 0;
+  dom.logCount.textContent = '0';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UI Updates
+   ═══════════════════════════════════════════════════════════════ */
+function updateStats(data) {
+  if (data.battle_count !== undefined) {
+    state.battleCount = data.battle_count;
+    dom.sBattle.textContent = dom.qBattle.textContent = data.battle_count;
+  }
+  if (data.pollute_count !== undefined) {
+    state.polluteCount = data.pollute_count;
+    dom.sPollute.textContent = dom.qPollute.textContent = data.pollute_count;
+  }
+  if (data.action_template !== undefined) {
+    state.actionTemplate = data.action_template || '--';
+    dom.sActionTpl.textContent = shortenTpl(state.actionTemplate);
+  }
+  if (data.action_score !== undefined) {
+    state.actionScore = data.action_score;
+    var score = Number(data.action_score);
+    var el = dom.sActionScore;
+    el.textContent = score.toFixed(2);
+    el.className = 'val ' + (score >= 0.6 ? 'high' : score >= 0.4 ? 'mid' : '');
+  }
+  if (data.end_score !== undefined) {
+    state.endScore = data.end_score;
+    dom.sEndScore.textContent = Number(data.end_score).toFixed(2);
+  }
+  if (data.reconnect_score !== undefined) {
+    state.reconnectScore = data.reconnect_score;
+    dom.sReconnect.textContent = Number(data.reconnect_score).toFixed(2);
+  }
+  if (data.in_battle !== undefined) {
+    state.inBattle = data.in_battle;
+    updateStatusDot();
+  }
+}
+
+function shortenTpl(name) {
+  if (!name) return '--';
+  return name.replace('.png', '').substring(0, 12);
+}
+
+function updateStatusDot() {
+  const dot = dom.statusDot;
+  dot.classList.remove('running', 'paused', 'battle');
+  if (state.inBattle) dot.classList.add('battle');
+  else if (state.paused) dot.classList.add('paused');
+  else if (state.running) dot.classList.add('running');
+}
+
+function setRunning(running) {
+  state.running = running;
+  state.paused = false;
+  if (_startTimeout) { clearTimeout(_startTimeout); _startTimeout = null; }
+  dom.app.classList.toggle('idle', !running);
+  dom.btnStart.style.display = running ? 'none' : '';
+  dom.btnStart.disabled = false;
+  dom.btnStart.textContent = '开始运行';
+  dom.btnStart.style.opacity = '1';
+  dom.btnStop.style.display = 'none';
+  dom.pauseBtn.disabled = !running;
+  setPausedUI(false);
+  updateStatusDot();
+  dom.modeSelector.querySelectorAll('input').forEach(function(inp) {
+    inp.disabled = running;
+  });
+  dom.modeSelector.style.opacity = running ? '0.5' : '1';
+  dom.modeSelector.style.pointerEvents = running ? 'none' : 'auto';
+  if (running) {
+    dom.windowStatus.textContent = '[运行中] ' + (state.selectedTitle ? '已选择: ' + state.selectedTitle : '');
+  }
+}
+
+function setPausedUI(paused) {
+  state.paused = paused;
+  const btn = dom.pauseBtn;
+  btn.classList.toggle('is-paused', paused);
+  dom.pauseIcon.style.display = paused ? 'none' : '';
+  dom.playIcon.style.display = paused ? '' : 'none';
+  dom.pauseLabel.textContent = paused ? '继 续' : '暂 停';
+  // Stop button only available while paused
+  dom.btnStop.style.display = paused ? '' : 'none';
+  updateStatusDot();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Window Selector
+   ═══════════════════════════════════════════════════════════════ */
+function refreshWindows() {
+  addLog('info', '正在刷新窗口列表…');
+  dom.windowList.innerHTML = '';
+  dom.windowStatus.textContent = '正在查找游戏窗口…';
+  state.selectedHwnd = null;
+  state.selectedTitle = '';
+  try {
+    eel.list_windows()();
+  } catch(e) {
+    addLog('error', '调用 list_windows 失败: ' + e.message);
+    dom.windowStatus.textContent = '调用失败: ' + e.message;
+  }
+}
+
+function onWindowsListed(windows) {
+  addLog('info', 'onWindowsListed 收到回调, windows=' + JSON.stringify(windows));
+  console.log('[onWindowsListed] received:', windows);
+  dom.windowList.innerHTML = '';
+
+  if (!windows || (Array.isArray(windows) && windows.length === 0)) {
+    dom.windowStatus.textContent = '未找到匹配窗口，请确认游戏已启动';
+    return;
+  }
+
+  var list = Array.isArray(windows) ? windows : [windows];
+  dom.windowStatus.textContent = '找到 ' + list.length + ' 个窗口，请选择';
+
+  list.forEach(function(win, i) {
+    var div = document.createElement('div');
+    div.className = 'window-option';
+    var id = 'win_' + i;
+    var safeTitle = escHtml(win.title);
+    div.innerHTML =
+      '<input type="radio" name="targetWindow" value="' + win.hwnd + '" data-title="' + safeTitle + '" id="' + id + '">' +
+      '<label for="' + id + '">' +
+        '<span class="win-title">' + safeTitle + '</span>' +
+        '<span class="win-info">' + win.width + 'x' + win.height + '</span>' +
+      '</label>';
+    dom.windowList.appendChild(div);
+  });
+
+  var radios = dom.windowList.querySelectorAll('input[type=radio]');
+  if (radios.length === 1) {
+    radios[0].checked = true;
+    state.selectedHwnd = parseInt(radios[0].value);
+    state.selectedTitle = list[0].title;
+    dom.windowStatus.textContent = '已自动选择: ' + list[0].title;
+    addLog('info', '已自动选择窗口: ' + list[0].title);
+  }
+  radios.forEach(function(r) {
+    r.addEventListener('change', function() {
+      if (r.checked) {
+        state.selectedHwnd = parseInt(r.value);
+        state.selectedTitle = r.dataset.title;
+        dom.windowStatus.textContent = (state.running ? '[运行中] ' : '') + '已选择: ' + state.selectedTitle;
+        // Hot-switch window if engine is running
+        if (state.running) {
+          eel.switch_window(state.selectedHwnd)();
+        }
+      }
+    });
+  });
+}
+
+dom.btnRefreshWindows.addEventListener('click', refreshWindows);
+
+/* ═══════════════════════════════════════════════════════════════
+   User Actions
+   ═══════════════════════════════════════════════════════════════ */
+dom.pauseBtn.addEventListener('click', () => {
+  if (!state.running) return;
+  eel.toggle_pause()();
+  if (window._mockEel) {
+    setPausedUI(!state.paused);
+    addLog(state.paused ? 'pause' : 'resume', state.paused ? '⏸ 已暂停' : '▶ 已恢复');
+  }
+});
+
+var _startTimeout = null;
+
+dom.btnStart.addEventListener('click', () => {
+  if (state.selectedHwnd === null) {
+    addLog('warning', '请先在目标窗口列表中选择一个游戏窗口');
+    return;
+  }
+  if (state.running) return;
+
+  // Lock button immediately to prevent double-click
+  dom.btnStart.disabled = true;
+  dom.btnStart.textContent = '启动中…';
+  dom.btnStart.style.opacity = '0.6';
+
+  eel.start_engine(state.selectedHwnd, state.mode, state.polluteAction, state.normalAction)();
+
+  if (window._mockEel) {
+    setRunning(true);
+    clearLog();
+    addLog('info', '引擎已启动（窗口: ' + state.selectedTitle + '）');
+    return;
+  }
+
+  // Timeout: re-enable button if Python doesn't respond within 10s
+  if (_startTimeout) clearTimeout(_startTimeout);
+  _startTimeout = setTimeout(function() {
+    if (!state.running) {
+      dom.btnStart.disabled = false;
+      dom.btnStart.textContent = '开始运行';
+      dom.btnStart.style.opacity = '1';
+      addLog('error', '启动超时：Python 后端未响应，请检查终端是否有错误');
+    }
+  }, 10000);
+});
+
+dom.btnStop.addEventListener('click', () => {
+  eel.stop_engine()();
+  if (window._mockEel) {
+    setRunning(false);
+    addLog('info', '引擎已停止');
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   Keyboard shortcut: Space to toggle pause
+   ═══════════════════════════════════════════════════════════════ */
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space' && state.running && e.target === document.body) {
+    e.preventDefault();
+    dom.pauseBtn.click();
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   Register JS callbacks for Python
+   Eel scans these statically to enable Python→JS calls.
+   ═══════════════════════════════════════════════════════════════ */
+eel.expose(addLog, 'addLog');
+eel.expose(updateStats, 'updateStats');
+eel.expose(setRunning, 'setRunning');
+eel.expose(setPausedUI, 'setPausedUI');
+eel.expose(clearLog, 'clearLog');
+eel.expose(onWindowsListed, 'onWindowsListed');
+
+/* ═══════════════════════════════════════════════════════════════
+   Settings Modal
+   ═══════════════════════════════════════════════════════════════ */
+var domSettings = {
+  overlay: $('#modalOverlay'),
+  thresholdSlider: $('#thresholdSlider'),
+  thresholdVal: $('#thresholdVal'),
+  intervalSlider: $('#intervalSlider'),
+  intervalVal: $('#intervalVal'),
+};
+
+$('#btnSettings').addEventListener('click', function() {
+  domSettings.thresholdSlider.value = String(state.matchThreshold);
+  domSettings.thresholdVal.textContent = state.matchThreshold.toFixed(2);
+  domSettings.intervalSlider.value = String(state.pollInterval);
+  domSettings.intervalVal.textContent = state.pollInterval.toFixed(1) + 's';
+  domSettings.overlay.classList.add('visible');
+});
+
+$('#btnCloseSettings').addEventListener('click', function() {
+  domSettings.overlay.classList.remove('visible');
+});
+$('#btnCancelSettings').addEventListener('click', function() {
+  domSettings.overlay.classList.remove('visible');
+});
+domSettings.overlay.addEventListener('click', function(e) {
+  if (e.target === domSettings.overlay) domSettings.overlay.classList.remove('visible');
+});
+
+domSettings.thresholdSlider.addEventListener('input', function() {
+  var v = parseFloat(this.value);
+  domSettings.thresholdVal.textContent = v.toFixed(2);
+});
+domSettings.intervalSlider.addEventListener('input', function() {
+  var v = parseFloat(this.value);
+  domSettings.intervalVal.textContent = v.toFixed(1) + 's';
+});
+
+$('#btnSaveSettings').addEventListener('click', function() {
+  var threshold = parseFloat(domSettings.thresholdSlider.value);
+  var interval = parseFloat(domSettings.intervalSlider.value);
+  state.matchThreshold = threshold;
+  state.pollInterval = interval;
+  eel.save_settings(threshold, interval)();
+  domSettings.overlay.classList.remove('visible');
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   Persist mode/action prefs
+   ═══════════════════════════════════════════════════════════════ */
+function persistPrefs() {
+  eel.save_gui_prefs(state.mode, state.polluteAction, state.normalAction)();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Init
+   ═══════════════════════════════════════════════════════════════ */
+function initApp() {
+  buildModeSelector();
+  addLog('info', window._mockEel ? '运行在 Mock 模式（浏览器直接打开）' : '运行在 Eel 模式（已连接后端）');
+  refreshWindows();
+
+  // Load saved prefs
+  eel.get_gui_prefs()(function(prefs) {
+    if (!prefs) return;
+    if (prefs.mode && prefs.mode !== state.mode) {
+      state.mode = prefs.mode;
+      var radio = document.getElementById('mode_' + prefs.mode);
+      if (radio) { radio.checked = true; updateSubOptions(); }
+    }
+    if (prefs.pollute_action) {
+      state.polluteAction = prefs.pollute_action;
+      updateSubActionButtons(dom.polluteActions, prefs.pollute_action);
+    }
+    if (prefs.normal_action) {
+      state.normalAction = prefs.normal_action;
+      updateSubActionButtons(dom.normalActions, prefs.normal_action);
+    }
+  });
+
+  eel.get_settings()(function(settings) {
+    if (!settings) return;
+    state.matchThreshold = settings.match_threshold || 0.4;
+    state.pollInterval = settings.poll_interval_sec || 2.0;
+  });
+}
+
+function updateSubActionButtons(parent, activeKey) {
+  parent.querySelectorAll('button').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.key === activeKey);
+  });
+}
+
+initApp();
+</script>
+
+</body>
+</html>

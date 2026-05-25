@@ -24,10 +24,16 @@ env/
 # Project specific
 *.new
 
+# User preferences
+user_prefs.json
+
+# Debug tools
+tools/
+template_debug/
+
 # PyInstaller
 dist/
 build/
 *.spec
 
 run.bat
-template_debug/

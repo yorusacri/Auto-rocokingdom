@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a1a28"/>
+      <stop offset="100%" stop-color="#0f0f1a"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glowStrong" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect x="4" y="4" width="120" height="120" rx="24" ry="24" fill="url(#bg)" stroke="#252538" stroke-width="2"/>
+
+  <!-- Outer ring -->
+  <circle cx="64" cy="64" r="48" fill="none" stroke="#e4a020" stroke-width="2" opacity="0.5"/>
+  <circle cx="64" cy="64" r="44" fill="none" stroke="#e4a020" stroke-width="1" opacity="0.25"/>
+
+  <!-- Crosshair -->
+  <line x1="64" y1="20" x2="64" y2="52" stroke="#e4a020" stroke-width="2.5" stroke-linecap="round" filter="url(#glow)"/>
+  <line x1="64" y1="76" x2="64" y2="108" stroke="#e4a020" stroke-width="2.5" stroke-linecap="round" filter="url(#glow)"/>
+  <line x1="20" y1="64" x2="52" y2="64" stroke="#e4a020" stroke-width="2.5" stroke-linecap="round" filter="url(#glow)"/>
+  <line x1="76" y1="64" x2="108" y2="64" stroke="#e4a020" stroke-width="2.5" stroke-linecap="round" filter="url(#glow)"/>
+
+  <!-- Inner circle -->
+  <circle cx="64" cy="64" r="16" fill="none" stroke="#e4a020" stroke-width="2.5" filter="url(#glowStrong)"/>
+
+  <!-- Center dot -->
+  <circle cx="64" cy="64" r="5" fill="#e4a020" filter="url(#glowStrong)"/>
+
+  <!-- Small tick marks at 45° angles -->
+  <line x1="64" y1="30" x2="64" y2="36" stroke="#20c8b8" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="64" y1="92" x2="64" y2="98" stroke="#20c8b8" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="30" y1="64" x2="36" y2="64" stroke="#20c8b8" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="92" y1="64" x2="98" y2="64" stroke="#20c8b8" stroke-width="1.5" stroke-linecap="round"/>
+</svg>
