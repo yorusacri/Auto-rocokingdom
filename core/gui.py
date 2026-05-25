@@ -291,11 +291,11 @@ def run_gui() -> None:
     else:
         _base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         _web_dir = os.path.join(_base, "web")
-    print(f"[GUI] web 目录: {_web_dir}")
-    if not os.path.isdir(_web_dir):
+    _idx = os.path.join(_web_dir, "index.html")
+    if not os.path.isfile(_idx):
         raise FileNotFoundError(
-            f"web 目录未找到: {_web_dir}\n"
-            f"请确认 web/ 文件夹与 exe 在同一目录。"
+            f"未找到 {_idx}\n"
+            f"请确认 web/ 文件夹与 exe 在同一目录"
         )
     eel.init(_web_dir)
     eel.spawn(_push_loop)
