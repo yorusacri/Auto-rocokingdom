@@ -282,12 +282,8 @@ def _push_loop() -> None:
 
 def run_gui() -> None:
     if getattr(sys, "frozen", False):
-        # PyInstaller onedir: data next to exe
-        _web_dir = os.path.join(os.path.dirname(sys.executable), "web")
-        if not os.path.isdir(_web_dir):
-            # Fallback: _MEIPASS for onefile, or CWD
-            _base = getattr(sys, "_MEIPASS", os.getcwd())
-            _web_dir = os.path.join(_base, "web")
+        # PyInstaller onedir: data in _internal/ next to exe
+        _web_dir = os.path.join(os.path.dirname(sys.executable), "_internal", "web")
     else:
         _base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         _web_dir = os.path.join(_base, "web")
