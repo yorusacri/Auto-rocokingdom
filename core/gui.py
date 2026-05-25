@@ -282,10 +282,21 @@ def _push_loop() -> None:
 
 def run_gui() -> None:
     if getattr(sys, "frozen", False):
-        _base = os.path.dirname(sys.executable)
+        # PyInstaller onedir: data next to exe
+        _web_dir = os.path.join(os.path.dirname(sys.executable), "web")
+        if not os.path.isdir(_web_dir):
+            # Fallback: _MEIPASS for onefile, or CWD
+            _base = getattr(sys, "_MEIPASS", os.getcwd())
+            _web_dir = os.path.join(_base, "web")
     else:
         _base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    _web_dir = os.path.join(_base, "web")
+        _web_dir = os.path.join(_base, "web")
+    print(f"[GUI] web 目录: {_web_dir}")
+    if not os.path.isdir(_web_dir):
+        raise FileNotFoundError(
+            f"web 目录未找到: {_web_dir}\n"
+            f"请确认 web/ 文件夹与 exe 在同一目录。"
+        )
     eel.init(_web_dir)
     eel.spawn(_push_loop)
     eel.start("index.html", mode="chrome", size=(1050, 720),
