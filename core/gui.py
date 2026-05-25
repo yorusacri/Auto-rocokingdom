@@ -148,6 +148,15 @@ def stop_engine() -> None:
 
 
 @eel.expose
+def shutdown() -> None:
+    """Called by frontend beforeunload to clean up."""
+    global _engine
+    if _engine is not None:
+        _engine.stop()
+        _engine = None
+    os._exit(0)
+
+@eel.expose
 def toggle_pause() -> None:
     if _engine is None:
         return
@@ -293,7 +302,10 @@ def run_gui() -> None:
             f"未找到 {_idx}\n"
             f"请确认 web/ 文件夹与 exe 在同一目录"
         )
+    def _force_exit(page=None, sockets=None):
+        os._exit(0)
+
     eel.init(_web_dir)
     eel.spawn(_push_loop)
     eel.start("index.html", mode="chrome", size=(1050, 720),
-              port=0, block=True)
+              port=0, block=True, close_callback=_force_exit, shutdown_delay=0.5)

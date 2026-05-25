@@ -1199,6 +1199,13 @@ dom.btnStop.addEventListener('click', () => {
 });
 
 /* ═══════════════════════════════════════════════════════════════
+   Window close — notify Python to exit
+   ═══════════════════════════════════════════════════════════════ */
+window.addEventListener('beforeunload', () => {
+  eel.shutdown()();
+});
+
+/* ═══════════════════════════════════════════════════════════════
    Keyboard shortcut: Space to toggle pause
    ═══════════════════════════════════════════════════════════════ */
 document.addEventListener('keydown', (e) => {
