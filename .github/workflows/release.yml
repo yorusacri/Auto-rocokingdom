@@ -39,7 +39,7 @@ jobs:
         run: uv pip install pyinstaller
 
       - name: Build
-        run: pyinstaller auto-roco-client-lite.spec
+        run: uv run pyinstaller auto-roco-client-lite.spec
 
       - name: Copy docs
         run: |
@@ -82,7 +82,7 @@ jobs:
         run: uv pip install pyinstaller
 
       - name: Build
-        run: pyinstaller auto-roco-client-full.spec
+        run: uv run pyinstaller auto-roco-client-full.spec
 
       - name: Copy docs
         run: |
