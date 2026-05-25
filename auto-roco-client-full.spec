@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 import os
 
-_project_root = os.path.dirname(os.path.abspath(SPECPATH))
+_project_root = os.getcwd()
 
 a = Analysis(
     ['client_main.py'],
