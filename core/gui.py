@@ -309,5 +309,11 @@ def run_gui() -> None:
 
     eel.init(_web_dir)
     eel.spawn(_push_loop)
-    eel.start("index.html", mode="chrome", size=(1050, 720),
-              port=0, block=True, close_callback=_force_exit, shutdown_delay=0.5)
+    for mode in ("chrome", "edge"):
+        try:
+            eel.start("index.html", mode=mode, size=(1050, 720),
+                      port=0, block=True, close_callback=_force_exit, shutdown_delay=0.5)
+            break
+        except OSError:
+            if mode == "edge":
+                raise
