@@ -4,6 +4,7 @@ import time as _time
 from typing import Dict, List, Tuple
 
 import cv2
+import numpy as np
 import win32gui
 
 from config import CONFIG
@@ -65,13 +66,21 @@ class Engine:
         self._capture_template_key = normalize_template_name(CONFIG.capture_template_name)
         self._pollute_capture_template_key = normalize_template_name(CONFIG.pollute_capture_template_name)
         self._reconnect_template_key = normalize_template_name(CONFIG.reconnect_template_name)
-        self._loaded_template_keys = {normalize_template_name(t.name) for t in self._templates}
+        _loaded_keys = {normalize_template_name(t.name) for t in self._templates}
 
         self._battle_end_keys = {}
         for raw_name in CONFIG.battle_end_template_names:
             key = normalize_template_name(raw_name)
             roi = _BATTLE_END_ROI.get(key, (0.5, 0.0, 0.5, 0.5))
             self._battle_end_keys[key] = roi
+
+        # Validate that config-referenced templates actually exist
+        for ref_name in [self._capture_template_key, self._pollute_capture_template_key,
+                         self._reconnect_template_key] + sorted(self._battle_end_keys):
+            if ref_name not in _loaded_keys:
+                print(f"[警告] 配置引用的模板未加载: {ref_name}，相关功能可能不可用")
+        if self._reconnect_template_key not in _loaded_keys:
+            print(f"[诊断] 同行检测模板未加载，同行重连功能已禁用")
 
         self._in_battle = False
         self._last_trigger_time = 0.0
@@ -128,7 +137,13 @@ class Engine:
             self._wait_if_paused()
             if self._stop_requested:
                 break
-            self._tick()
+            try:
+                self._tick()
+            except Exception as e:
+                import traceback
+                print(f"[{_ts()}] [错误] 循环异常: {e}")
+                print(traceback.format_exc())
+                _time.sleep(1.0)
             jitter = random.uniform(-self._interval * 0.15, self._interval * 0.15)
             _time.sleep(max(0.05, self._interval + jitter))
 
@@ -171,6 +186,12 @@ class Engine:
         scale = width / CONFIG.ref_width
 
         full_window_bgr = capture_window_bgr(hwnd)
+        if not hasattr(self, '_capture_ok_logged'):
+            if full_window_bgr.size <= 3:
+                print(f"[诊断] 捕获图像数据为空，窗口可能被遮挡或未正确渲染")
+            elif np.max(full_window_bgr) == 0:
+                print(f"[诊断] 捕获图像全黑，窗口可能处于后台或最小化状态")
+            self._capture_ok_logged = True
 
         roi_left = int(width * CONFIG.roi_left_ratio)
         roi_top = int(height * CONFIG.roi_top_ratio)

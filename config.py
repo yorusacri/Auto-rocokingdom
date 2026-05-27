@@ -27,14 +27,21 @@ def load_prefs() -> dict:
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         return {}
+    except OSError as e:
+        if sys.stdout is not None:
+            print(f"[警告] 无法读取配置文件 {_PREFS_PATH}: {e}")
+        return {}
 
 
 def save_prefs(prefs: dict) -> None:
     """Save all preferences to user_prefs.json."""
-    full_prefs = load_prefs()
-    full_prefs.update(prefs)
-    with open(_PREFS_PATH, "w", encoding="utf-8") as f:
-        json.dump(full_prefs, f, ensure_ascii=False, indent=2)
+    try:
+        full_prefs = load_prefs()
+        full_prefs.update(prefs)
+        with open(_PREFS_PATH, "w", encoding="utf-8") as f:
+            json.dump(full_prefs, f, ensure_ascii=False, indent=2)
+    except OSError as e:
+        print(f"[警告] 无法保存配置文件 {_PREFS_PATH}: {e}")
 
 
 def _get_prefs_value(key: str, default, prefs: dict):

@@ -1,4 +1,5 @@
 import ctypes
+import sys
 from typing import List, Optional, Tuple
 
 import win32gui
@@ -8,8 +9,9 @@ from config import CONFIG
 # DPI Awareness
 try:
     ctypes.windll.user32.SetProcessDPIAware()
-except Exception:
-    pass
+except Exception as e:
+    if sys.stdout is not None:
+        print(f"[警告] 无法设置 DPI 感知: {e}。在高 DPI 显示器上点击坐标可能偏移。")
 
 
 def find_window_by_keyword(keyword: str) -> Optional[int]:

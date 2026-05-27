@@ -4,13 +4,23 @@ import warnings
 import cv2
 import numpy as np
 
+_ocr_error_logged = False
+
 try:
     import easyocr
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", UserWarning)
         _reader = easyocr.Reader(["ch_sim", "en"], verbose=False)
-except ImportError:
+except ImportError as e:
     _reader = None
+    print(f"[\u8bca\u65ad] EasyOCR \u4e0d\u53ef\u7528: {e}")
+    if "easyocr" in str(e).lower():
+        print("       easyocr \u672a\u5b89\u88c5\u3002\u5982\u9700 OCR \u7cbe\u7075\u540d\u79f0\u8bc6\u522b\uff0c\u8fd0\u884c: uv sync --extra easyocr")
+    elif "torch" in str(e).lower():
+        print("       PyTorch \u672a\u5b89\u88c5\u3002\u8fd0\u884c: uv sync --extra easyocr")
+except Exception as e:
+    _reader = None
+    print(f"[\u8b66\u544a] EasyOCR \u521d\u59cb\u5316\u5931\u8d25: {e}")
 
 from config import CONFIG
 
@@ -31,6 +41,7 @@ def _preprocess(bgr_patch: np.ndarray) -> np.ndarray:
 
 
 def recognize_spirit_name(full_bgr: np.ndarray, width: int, height: int) -> str:
+    global _ocr_error_logged
     if _reader is None:
         return CONFIG.ocr_fallback_text
 
@@ -49,5 +60,8 @@ def recognize_spirit_name(full_bgr: np.ndarray, width: int, height: int) -> str:
         match = re.match(r"[\u4e00-\u9fff]+", first_text)
         return match.group(0) if match else CONFIG.ocr_fallback_text
 
-    except Exception:
+    except Exception as e:
+        if not _ocr_error_logged:
+            print(f"[\u8b66\u544a] OCR \u8bc6\u522b\u5931\u8d25: {e}")
+            _ocr_error_logged = True
         return CONFIG.ocr_fallback_text

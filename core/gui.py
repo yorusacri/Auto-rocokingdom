@@ -70,7 +70,6 @@ def _classify_log_level(line: str) -> str:
 
 
 def _engine_thread_func(engine: Engine) -> None:
-    sys.stdout = _TeeStdout(_original_stdout)
     try:
         print(f"[{_ts()}] 检测器已启动（模式: {engine._mode.label}），按暂停按钮可暂停。")
         while engine.is_running:
@@ -78,9 +77,9 @@ def _engine_thread_func(engine: Engine) -> None:
             jitter = 0  # GUI mode: timing is handled by the spawned loop
             _time.sleep(max(0.05, engine._interval * 0.3))
     except Exception as e:
+        import traceback
         print(f"[{_ts()}] [错误] 引擎异常: {e}")
-    finally:
-        sys.stdout = _original_stdout
+        print(traceback.format_exc())
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -93,6 +92,7 @@ def _find_mode_cls(name: str):
     for cls in MODE_REGISTRY.values():
         if cls().name == name:
             return cls
+    print(f"[警告] 未知模式 '{name}'，已回退到智能模式")
     return MODE_REGISTRY["1"]
 
 
@@ -292,8 +292,11 @@ def _push_loop() -> None:
 # ═══════════════════════════════════════════════════════════════
 
 def run_gui() -> None:
+    # Redirect stdout early so ALL prints (including diagnostics during
+    # engine init) appear in the GUI log panel, even in console=False builds.
+    sys.stdout = _TeeStdout(_original_stdout)
+
     if getattr(sys, "frozen", False):
-        # PyInstaller onedir: data in _internal/ next to exe
         _web_dir = os.path.join(os.path.dirname(sys.executable), "_internal", "web")
     else:
         _base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
