@@ -47,6 +47,11 @@ class _TeeStdout:
         if self._original is not None:
             self._original.flush()
 
+    def fileno(self) -> int:
+        if self._original is not None and hasattr(self._original, 'fileno'):
+            return self._original.fileno()
+        raise OSError("No underlying file descriptor")
+
 
 def _drain_log() -> list[str]:
     with _stdout_lock:

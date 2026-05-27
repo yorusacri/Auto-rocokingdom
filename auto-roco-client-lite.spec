@@ -11,7 +11,7 @@ a = Analysis(
         (os.path.join(_project_root, 'templates'), 'templates'),
         (os.path.join(_project_root, 'web'), 'web'),
     ],
-    hiddenimports=['gevent', 'gevent.websocket', 'bottle', 'bottle_websocket'],
+    hiddenimports=['gevent', 'gevent.websocket', 'bottle', 'bottle_websocket', 'cv2'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
