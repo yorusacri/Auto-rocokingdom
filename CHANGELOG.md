@@ -2,7 +2,8 @@
 
 ### 2026-05-30
 
-1. **Edge 浏览器兼容修复**：修复 `_TeeStdout.fileno()` 在 `console=False` 打包时抛出 `OSError` 导致无 Chrome 用户无法启动的问题。Edge 浏览器启动时会将 `sys.stdout` 传入 subprocess，subprocess 调用 `fileno()` 获取文件描述符，但 PyInstaller 无终端模式没有底层文件描述符。现已添加 try/except 保护。
+1. **Edge 浏览器兼容修复**：修复 `_TeeStdout.fileno()` 在 `console=False` 打包时抛出 `OSError` 导致无 Chrome 用户无法启动的问题。Edge 浏览器启动时会将 `sys.stdout` 传入 subprocess，subprocess 调用 `fileno()` 获取文件描述符，但 PyInstaller 无终端模式没有底层文件描述符。改为返回 `NUL` 的有效文件描述符作为兜底。
+2. **测试基础设施**：添加 pytest 测试套件（81 个用例），覆盖 `_TeeStdout`、配置加载/保存、模板名规范、轮询间隔边界、日志分类、模式注册表、SmartMode 状态机、引擎快照和污染日志等模块。
 
 ### 2026-05-27
 

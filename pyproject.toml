@@ -19,6 +19,13 @@ easyocr = [
     "easyocr",
 ]
 
+[dependency-groups]
+dev = [
+    "pyinstaller>=6.20.0",
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+]
+
 [[tool.uv.index]]
 name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"

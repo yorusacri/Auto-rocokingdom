@@ -84,9 +84,9 @@ Modes are registered in `modes/__init__.py` via `MODE_REGISTRY` dict. Adding a m
 
 GUI settings panel saves to `user_prefs.json` via `save_prefs()`; changes take effect on next engine start.
 
-## Commit Rules
+## Commit Rules — READ CAREFULLY
 
-- **Only commit/push when the user explicitly says "commit" or "push".** Do not commit after every fix.
+- **CRITICAL: NEVER commit, push, or tag unless the user explicitly says "commit" or "push".** This includes `git commit`, `git push`, `git tag`, or any action that creates/modifies git objects. If you commit without permission, the user cannot undo it. Always ask first — even if you've fixed a bug, even if tests pass, even if it "just works now." Wait for the user to say "commit" before creating any commit.
 - Before every git commit:
   1. Review CHANGELOG.md and add entries for all functional changes (new features, bug fixes) first; structural/refactor changes are secondary.
   2. Review README.md and update any sections affected by the changes.
