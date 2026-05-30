@@ -53,7 +53,11 @@ class _TeeStdout:
                 return self._original.fileno()
             except OSError:
                 pass
-        raise OSError("No underlying file descriptor")
+        try:
+            return self._fallback_fileno
+        except AttributeError:
+            self._fallback_fileno = os.open(os.devnull, os.O_WRONLY)
+            return self._fallback_fileno
 
 
 def _drain_log() -> list[str]:
