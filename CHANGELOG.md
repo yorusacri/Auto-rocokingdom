@@ -1,5 +1,9 @@
 # 更新日志
 
+### 2026-05-30
+
+1. **Edge 浏览器兼容修复**：修复 `_TeeStdout.fileno()` 在 `console=False` 打包时抛出 `OSError` 导致无 Chrome 用户无法启动的问题。Edge 浏览器启动时会将 `sys.stdout` 传入 subprocess，subprocess 调用 `fileno()` 获取文件描述符，但 PyInstaller 无终端模式没有底层文件描述符。现已添加 try/except 保护。
+
 ### 2026-05-27
 
 1. **全模块诊断日志**：所有模块的静默失败点已添加 `[诊断]` / `[警告]` / `[错误]` 前缀日志，启动或运行时报错会自动输出详细诊断信息到引擎日志面板，方便用户截图反馈。

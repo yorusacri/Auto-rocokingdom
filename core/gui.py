@@ -49,7 +49,10 @@ class _TeeStdout:
 
     def fileno(self) -> int:
         if self._original is not None and hasattr(self._original, 'fileno'):
-            return self._original.fileno()
+            try:
+                return self._original.fileno()
+            except OSError:
+                pass
         raise OSError("No underlying file descriptor")
 
 
